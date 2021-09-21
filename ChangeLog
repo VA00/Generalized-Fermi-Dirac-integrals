@@ -1,3 +1,7 @@
+2021-09-21 v0.26 
+
+Python link via cffi added. Welcome new developer, Karol Urbański.
+
 2021-01-23 v0.25 
 
 Minor upgrade. Updated Mathematica MathLink compilation instructions
