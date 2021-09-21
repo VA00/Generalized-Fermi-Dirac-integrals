@@ -1,0 +1,71 @@
+2021-01-23 v0.25 
+
+Minor upgrade. Updated Mathematica MathLink compilation instructions
+for use with $VersionNumner 12.1. Missing files included.
+
+2020-07-24 v0.24 
+
+Major upgrade, Sommerfeld and poly-log series with hypergeometric 2F1 and Kummer U terms for extreme positive and negative chemical potentials.
+
+
+
+2014-02-25
+
+Minor version 0.22 upgrade. Added
+fixedFfermi functions and tranlated
+into plain C gauss-fermi.f from F.X.T.
+This is mandatory step into fair
+comparison of gauss-based subdivision
+method with Tanh-Sinh method. Both must
+use fixed and tabulated  abscissas and weights,
+with AVX-aligned tables (divisible by 4; 
+e.g. 5-point quadrature waste entire
+AVX cycle to compute fifth integrand).
+
+A lot of minor bugfixes, coverage tests
+and precision tests were made. Some
+unexpected behavior between icc and gcc
+compiled versions has been found. 
+In general, icc results appear both
+more accurate and calculated faster.
+
+
+
+
+
+2014-02-12
+
+Version 0.21. Library ready to deploy. Coverage test
+made, some under/overflow and cancellation 
+bugs fixed. Prototype quickFfermi functions
+added, aimed at full utilization of the
+AVX/AVX2.
+
+
+2013-11-09
+
+Version 0.2 started. Only Tanh-Sinh versions of G- and F-
+functions are now included. 
+
+2012-08-30
+
+Second step, goal rel. error
+changed from 4*DBL_EPSILON to sqrt(DBL_EPSILON).
+Since every doubling of sampling points
+should in principle double number of significant digits,
+this seems to be appropriate. Use of 4*DBL_EPSILON
+in fact caused accuracy drop with doubled points,
+and sometimes in infinite while loop.
+
+
+
+2012-08-28
+
+First Tanh-Sinh version
+
+
+
+
+2012-08-02
+
+First published version.
