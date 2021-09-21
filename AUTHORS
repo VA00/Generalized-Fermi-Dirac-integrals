@@ -1,6 +1,8 @@
 Andrzej Odrzywolek <andrzej.odrzywolek@uj.edu.pl>
+Karol Urbański <karol.j.urbanski@student.uj.edu.pl>
 
-Function gaussFfermi(), used as cross-check, is heavily based on Fortran source from cococubed.com
+
+Function gaussFfermi(), used as cross-check, is heavily based on Fortran source from cococubed.asu.edu
 by F.X.Timmes.
 
 
