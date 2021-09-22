@@ -36,7 +36,12 @@ To use library in *Mathematica*, first compile MathLink code (replace 12.3 with 
 
 gcc -c Fermi-Dirac.tm.c Fermi-Dirac.c -I /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/
 
-g++ Fermi-Dirac.tm.o Fermi-Dirac.o -o Fermi-Dirac -L /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/ -lML64i4 -lpthread -lrt -lstdc++ -ldl -luuid -lfermidirac
+~~g++ Fermi-Dirac.tm.o Fermi-Dirac.o -o Fermi-Dirac -L /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/ -lML64i4 -lpthread -lrt -lstdc++ -ldl -luuid -lfermidirac~~
+
+
+g++ Fermi-Dirac.tm.o Fermi-Dirac.o /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/libML64i4.a -o Fermi-Dirac -lpthread -lrt -lstdc++ -ldl -luuid -lfermidirac
+
+
 
 You might need to install libuuid developement files. 
 On Ubuntu:
@@ -44,8 +49,8 @@ sudo apt install uuid-dev
 On RedHat:
 yum install libuuid-devel
 
-System might not find Mathematica libraries, producing error. In this case run:
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Wolfram/Mathematica/12.3/SystemFiles/Libraries/Linux-x86-64/
+~~System might not find Mathematica libraries, producing error. In this case run:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Wolfram/Mathematica/12.3/SystemFiles/Libraries/Linux-x86-64/~~
 
 
 Then, in *Mathematica* use (or whatever directory it is):
