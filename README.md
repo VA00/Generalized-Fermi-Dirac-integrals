@@ -1,6 +1,8 @@
 # Generalized-Fermi-Dirac-integrals
+
 Provide reliable, accurate down to several ULP's and fast numerical framework to compute generalized Fermi-Dirac integrals aiming at full floating-point parameter coverage, generality, precision control and speed.
 
+##Installation
 
 To install library, follow standard
 Linux autoconf procedure (see also INSTALL):
@@ -21,8 +23,11 @@ If you prefer to use other compilers, e.g:
 
 ./configure CC=icc CFLAGS="-qopenmp -xhost -O3"
 
+##Use in C and Fortran
 
 Use of the library is straightforward in C and Fortran. See examples/ subdir, files example.c and example.f90, respectively.  
+
+##Use in Mathematica
 
 To use library in Mathematica, first compile MathLink code (replace 12.3 with your Mathematica $VersionNumber),
  which is located in examples subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
@@ -56,6 +61,4 @@ In:= GFermi[1.0, 1.0, 1.0]
 Out = 58.676
 
 
-
-
-Use in Python
+##Use in Python
