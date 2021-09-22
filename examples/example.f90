@@ -1,4 +1,5 @@
 ! Compile with gfortran example.f90 -o example -lfermidirac
+program example
       implicit none
 ! interface for C library http://th.if.uj.edu.pl/~odrzywolek/homepage/codes/libfermidirac/libfermidirac.html
 ! See https://stackoverflow.com/tags/fortran-iso-c-binding/info
