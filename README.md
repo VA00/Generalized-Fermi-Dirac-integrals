@@ -27,9 +27,9 @@ If you prefer to use other compilers, e.g:
 
 Use of the library is straightforward in C and Fortran. See examples/ subdir, files example.c and example.f90, respectively.  
 
-## Use in Mathematica
+## Use in *Mathematica*
 
-To use library in Mathematica, first compile MathLink code (replace 12.3 with your Mathematica $VersionNumber),
+To use library in *Mathematica*, first compile MathLink code (replace 12.3 with your Mathematica *$VersionNumber*),
  which is located in examples subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
 
 /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/mprep Fermi-Dirac.tm -o Fermi-Dirac.tm.c
