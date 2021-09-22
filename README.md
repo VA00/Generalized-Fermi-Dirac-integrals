@@ -44,7 +44,11 @@ sudo apt install uuid-dev
 On RedHat:
 yum install libuuid-devel
 
-Then, in Mathematica use:
+System might not find Mathematica libraries, producing error. In this case run:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Wolfram/Mathematica/12.3/SystemFiles/Libraries/Linux-x86-64/
+
+
+Then, in *Mathematica* use (or whatever directory it is):
 
 SetDirectory["$HOME/libfermidirac-0.26/examples"]
 
