@@ -1,0 +1,54 @@
+\documentclass{article}
+\usepackage[intlimits]{amsmath}
+%\usepackage{bigints}
+
+\begin{document}
+
+Library \texttt{libfermidirac} provides function:
+
+\begin{equation}
+\label{Ffermi}
+F_k(\eta, \theta) 
+= 
+\int_0^\infty
+\frac{x^k \; \sqrt{1+ \frac{\theta x}{2}}}{1+e^{x-\eta}} \; dx.
+\end{equation}
+
+
+Call it from C with
+\begin{flushleft}
+\tt
+double Ffermi(double k, double eta, double theta);
+\end{flushleft}
+
+
+From definition \eqref{Ffermi} $k>-1$ and $\theta \geq 0$. For out-of-range parameters
+function should return NaN.
+
+The Fermi-Dirac integrals $G_n^{\pm}$ are:
+\begin{equation}
+\label{Gfermi}
+G_n^{\pm}(\alpha, \beta) =
+\frac{1}{\alpha^{3+2 n}} \int_{\alpha}^{\infty} \frac{x^{2 n+1 } \sqrt{x^2-\alpha^2}}{1+\exp(x\pm \beta)} \; dx.
+\end{equation}
+Usually: $\alpha = m_e/kT$, $\beta = \mu_e/kT$, $x=E/kT$.
+
+To call from C use:\\
+for function $G_n^+(\alpha,\beta)$:
+\begin{flushleft}
+\tt
+double Gp(double n, double alpha, double beta);
+\end{flushleft}
+
+
+for function $G_n^-(\alpha,\beta)$:
+\begin{flushleft}
+\tt
+double Gm(double n, double alpha, double beta);
+\end{flushleft}
+
+
+
+
+
+\end{document}
