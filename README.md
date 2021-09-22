@@ -24,14 +24,14 @@ If you prefer to use other compilers, e.g:
 
 Use of the library is straightforward. See examples/ subdir. 
 
-To use library in Mathematica, first compile MathLink code (replace 12.1 with your Mathematica $VersionNumber),
+To use library in Mathematica, first compile MathLink code (replace 12.3 with your Mathematica $VersionNumber),
  which is located in examples subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
 
-/usr/local/Wolfram/Mathematica/12.1/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/mprep Fermi-Dirac.tm -o Fermi-Dirac.tm.c
+/usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/mprep Fermi-Dirac.tm -o Fermi-Dirac.tm.c
 
-gcc -c Fermi-Dirac.tm.c Fermi-Dirac.c -I /usr/local/Wolfram/Mathematica/12.1/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/
+gcc -c Fermi-Dirac.tm.c Fermi-Dirac.c -I /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/
 
-g++ Fermi-Dirac.tm.o Fermi-Dirac.o -o Fermi-Dirac -L /usr/local/Wolfram/Mathematica/12.1/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/ -lML64i4 -lpthread -lrt -lstdc++ -ldl -luuid -lfermidirac
+g++ Fermi-Dirac.tm.o Fermi-Dirac.o -o Fermi-Dirac -L /usr/local/Wolfram/Mathematica/12.3/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/ -lML64i4 -lpthread -lrt -lstdc++ -ldl -luuid -lfermidirac
 
 You might need to install libuuid developement files. 
 On Ubuntu:
@@ -41,7 +41,7 @@ yum install libuuid-devel
 
 Then, in Mathematica use:
 
-SetDirectory["$HOME/libfermidirac-0.25/doc"]
+SetDirectory["$HOME/libfermidirac-0.26/examples"]
 
 Install["Fermi-Dirac"]
 
