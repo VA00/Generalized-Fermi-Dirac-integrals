@@ -12,6 +12,7 @@ AC_CONFIG_FILES([
 Makefile
 src/Makefile
 doc/Makefile
+examples/Makefile
 ])
 
 # Checks for programs.
