@@ -1,4 +1,4 @@
-! Compile with gfortran example.f90 -o example -lfermidirac
+! Compile with gfortran example.f90 -o example.exe -lfermidirac
 program example
       implicit none
 ! interface for C library http://th.if.uj.edu.pl/~odrzywolek/homepage/codes/libfermidirac/libfermidirac.html
