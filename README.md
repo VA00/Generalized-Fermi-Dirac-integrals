@@ -22,7 +22,7 @@ If you prefer to use other compilers, e.g:
 ./configure CC=icc CFLAGS="-qopenmp -xhost -O3"
 
 
-Use of the library is straightforward. See examples/ subdir. 
+Use of the library is straightforward in C and Fortran. See examples/ subdir, files example.c and example.f90, respectively.  
 
 To use library in Mathematica, first compile MathLink code (replace 12.3 with your Mathematica $VersionNumber),
  which is located in examples subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
@@ -56,7 +56,6 @@ In:= GFermi[1.0, 1.0, 1.0]
 Out = 58.676
 
 
-Use in Fortran
 
 
 Use in Python
