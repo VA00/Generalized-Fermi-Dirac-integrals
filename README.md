@@ -22,42 +22,10 @@ If you prefer to use other compilers, e.g:
 ./configure CC=icc CFLAGS="-qopenmp -xhost -O3"
 
 
-Use of the library is straightforward. Simplest "example.c" C code:
-
-#include <fermidirac.h>
-#include <stdio.h>
-#include <math.h>
-
-int main()
-{
-  
-  double result;
-  
-  
-  result = Ffermi(4.0,1.0,1.0);
-  
-  printf("%.18lf\n",k,result);
-  
-  return 0;
-
-}
-
-
-Compile with:
-
-gcc example.c -o example -lm -lfermidirac
-
-Run:
-
-./example
-
-with expected reult:
-
-114.066877991379016066
-
+Use of the library is straightforward. See examples/ subdir. 
 
 To use library in Mathematica, first compile MathLink code (replace 12.1 with your Mathematica $VersionNumber),
- which is located in doc subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
+ which is located in examples subdirectory (Fermi-Dirac.tm and Fermi-Dirac.c files). 
 
 /usr/local/Wolfram/Mathematica/12.1/SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions/mprep Fermi-Dirac.tm -o Fermi-Dirac.tm.c
 
