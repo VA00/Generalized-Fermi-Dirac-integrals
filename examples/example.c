@@ -3,7 +3,7 @@ Compile with e.g:
 gcc example.c -o example -lm -lfermidirac
 Run:
 ./example
-with expected reult: 114.066877991379016066
+with expected result: 114.066877991379016066
 */
 #include <fermidirac.h>
 #include <stdio.h>
