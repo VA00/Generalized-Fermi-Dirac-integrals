@@ -82,12 +82,12 @@ or simply
 
 pip install cffi
 
-Then, compile Python libary using C sources:
+Then, enter examples/ subdir and compile fast Python library using C sources:
 
 python3 create_interface.py
 
 Above step should create fermidirac.cpython-38-x86_64-linux-gnu.so library.
-Then, chcek the example:
+Then, check the example:
 
 python3 example.py
 
