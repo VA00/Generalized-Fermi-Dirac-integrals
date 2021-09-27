@@ -7,16 +7,16 @@ Provide reliable, accurate down to several ULP's and fast numerical framework to
 To install library, follow standard
 Linux autoconf procedure (see also INSTALL):
 
-./configure
-make
-sudo make install
-sudo ldconfig
+./configure  
+make  
+sudo make install  
+sudo ldconfig  
 
 To install in e.g. home directory:
 
-./configure --prefix=$HOME
-make
-make install
+./configure --prefix=$HOME  
+make  
+make install  
 
 
 If you prefer to use other compilers, e.g:
