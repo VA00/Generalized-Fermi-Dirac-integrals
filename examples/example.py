@@ -1,5 +1,8 @@
 from fermidirac.lib import Ffermi
 
-k = 4.0
-result = Ffermi(k, 1.0, 1.0)
-print(f"{k}: {result}")
+result = Ffermi(4.0, 1.0, 1.0)
+
+print("Ffermi(4,1,1) = {result}")
+
+#Expected reference result
+#Ffermi(4,1,1)=114.06687799137902589992508824775903265360960251309372394266372713106403373794999046746440912671766590817078780479429221800302036

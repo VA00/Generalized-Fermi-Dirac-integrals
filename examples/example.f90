@@ -14,7 +14,7 @@ program example
       real*8   :: f
 ! evaluate the fermi function for k=4, eta=1, theta=1
       f = ofermi(4.0d0, 1.0d0, 1.0d0)
-	  write(*,*) f
+	  write(*,*) "Ffermi(4,1,1)= ",f
 	  
 ! Expected reference result
 ! Ffermi(4,1,1)=114.06687799137902589992508824775903265360960251309372394266372713106403373794999046746440912671766590817078780479429221800302036

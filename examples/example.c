@@ -17,7 +17,7 @@ int main()
   
   result = Ffermi(4.0,1.0,1.0);
   
-  printf("%.18lf\n",result);
+  printf("Ffermi(4,1,1)=%.18lf\n",result);
   
   // Expected reference result
   // Ffermi(4,1,1)=114.066877991379025899925088247759032653609602513093723942663727131064\
