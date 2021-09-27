@@ -1,3 +1,4 @@
+#python3 example.py
 from fermidirac.lib import Ffermi
 
 result = Ffermi(4.0, 1.0, 1.0)
