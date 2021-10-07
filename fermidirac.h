@@ -11,6 +11,10 @@ long double Ffermi_long(const long double, const long double, const long double)
 
 
 //Fixed-grid version
+void fixedFfermi_derivatives(const double, const double, const double,
+		   const double, double, double, 
+		   double *, double *, double *,
+		   double *, double *, double *);
 double fixedFfermi(const double, const double, const double,
 		   const double, double, double);
 float  fixedFfermif(const float, const float, const float,
