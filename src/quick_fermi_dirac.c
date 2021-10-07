@@ -19,13 +19,15 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 
 
 
-double fixedFfermi(const double k, const double eta, const double theta,
-		   const double h, double hMIN, double hMAX)
+
+void fixedFfermi_derivatives(const double k, const double eta, const double theta,
+		   const double h, double hMIN, double hMAX, 
+		   double * F, double *dF_deta, double *d2F_deta2,
+		   double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta)
 {
   int ii,num;
-  double t, x, dx, integral=0.0;
-  double c=0.0,tmp,y; // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
-
+  double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0;
+  double xst,dxst,factor, denom, denomi; //AUX vars similar to used by FXT code
   
   num = (int) -hMIN/h;
   hMIN = -num*h;
@@ -37,33 +39,34 @@ double fixedFfermi(const double k, const double eta, const double theta,
 #endif  
   
   num = (int) (hMAX-hMIN)/h;
-//  #pragma omp simd
-//  #pragma ivdep
+
   for(ii=0;ii<=num;ii++)
   {
     t = hMIN + ii*h;
-    //t = hMAX -	 ii*h;
+    //t = hMAX - ii*h;
 
-    x = exp(t-exp(-t));
-    dx = 1.0 +exp(-t);
-    integral+= 1.0/(1.0+exp(x)*exp(-eta) )*exp(   (k+1.0) * (t - exp(-t))   )*sqrt(1.0+ 0.5*theta*x) * dx;
-
-  //integral+= 1.0/(1.0+exp(x-eta) )*pow(x,k+1.0)*sqrt(1.0+ 0.5*theta*x) * dx;
-
-
-/*
-    x = exp(t-exp(-t));
-    dx = 1.0 +exp(-t);
-	y = 1.0/(1.0+exp(x)*exp(-eta) )
-	            *exp(   (k+1.0) * (t - exp(-t))   )
-                *sqrt(1.0+ 0.5*theta*x) * dx 
-				- c;
-	tmp = integral + y;
-	c = (tmp-integral) - y;
-	integral=tmp; */
+    x    = exp(t-exp(-t));
+    dx   = 1.0 +exp(-t); // This is NOT D[x,t], D[x,t] = x*dx !
+	xst  = 1.0+ 0.5*theta*x;
+	dxst = sqrt(xst);
+	factor = exp(x-eta);
+	denom  = 1.0+factor;
+    denomi = 1.0/denom;	
+	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*dxst * dx;
+    integral             +=   f;
+	integral_deta        +=   f*factor*denomi; 
+	integral_deta2       +=   f*factor*denomi*denomi*(factor-1.0); 
+	integral_dtheta      +=   f*0.25*x/xst;
+	integral_dtheta2     +=  -f*0.25*x/xst*x/xst*0.25;
+	integral_deta_dtheta +=   f*0.25*x/xst*factor*denomi;
   }
-
-  return h*integral;  
+  
+  *F                 = h*integral;
+  *dF_deta           = h*integral_deta;
+  *d2F_deta2         = h*integral_deta2;
+  *dF_dtheta         = h*integral_dtheta;
+  *d2F_dtheta2       = h*integral_dtheta2;
+  *d2F_dtheta_deta   = h*integral_deta_dtheta;
 
 }
 
