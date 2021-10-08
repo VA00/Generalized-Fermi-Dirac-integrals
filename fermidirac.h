@@ -19,8 +19,8 @@ double fixedFfermi(const double, const double, const double,
 		   const double, double, double);
 float  fixedFfermif(const float, const float, const float,
 		   const float, float, float);
-double  fixedFfermi_long(const double, const double, const double,
-		   const double, double, double);
+long double  fixedFfermi_long(const long double, const long double, const long double,
+		   const long double, const long double, const long double);
 
 double  gaussFfermi(const double, const double, const double);
 float  gaussFfermif(const float, const float, const float);
