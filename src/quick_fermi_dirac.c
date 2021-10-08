@@ -21,9 +21,9 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 
 
 void fixedFfermi_derivatives(const double k, const double eta, const double theta,
-		   const double h, double hMIN, double hMAX, 
-		   double * F, double *dF_deta, double *d2F_deta2,
-		   double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta)
+       const double h, double hMIN, double hMAX, 
+       double * F, double *dF_deta, double *d2F_deta2,
+       double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta)
 {
   int ii,num;
   double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0;
@@ -70,11 +70,15 @@ void fixedFfermi_derivatives(const double k, const double eta, const double thet
 
 }
 
-double fixedFfermi_long(const double k, const double eta, const double theta,
+
+
+
+double fixedFfermi(const double k, const double eta, const double theta,
 		   const double h, double hMIN, double hMAX)
 {
   int ii,num;
-  long double t, x, dx, integral=0.0L;
+  double t, x, dx, integral=0.0;
+  double c=0.0,tmp,y; // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
 
   
   num = (int) -hMIN/h;
@@ -82,15 +86,63 @@ double fixedFfermi_long(const double k, const double eta, const double theta,
   
   num = (int) hMAX/h;
   hMAX = num*h;
+#if DEBUG  
+  printf("fixedFfermi: %d %lf %lf\n", num, hMIN,hMAX);
+#endif  
   
-
   num = (int) (hMAX-hMIN)/h;
-  #pragma omp simd
-  #pragma ivdep
+//  #pragma omp simd
+//  #pragma ivdep
   for(ii=0;ii<=num;ii++)
   {
     t = hMIN + ii*h;
     //t = hMAX -	 ii*h;
+
+    x = exp(t-exp(-t));
+    dx = 1.0 +exp(-t);
+    integral+= 1.0/(1.0+exp(x)*exp(-eta) )*exp(   (k+1.0) * (t - exp(-t))   )*sqrt(1.0+ 0.5*theta*x) * dx;
+
+  //integral+= 1.0/(1.0+exp(x-eta) )*pow(x,k+1.0)*sqrt(1.0+ 0.5*theta*x) * dx;
+
+
+/*
+    x = exp(t-exp(-t));
+    dx = 1.0 +exp(-t);
+	y = 1.0/(1.0+exp(x)*exp(-eta) )
+	            *exp(   (k+1.0) * (t - exp(-t))   )
+                *sqrt(1.0+ 0.5*theta*x) * dx 
+				- c;
+	tmp = integral + y;
+	c = (tmp-integral) - y;
+	integral=tmp; */
+  }
+
+  return h*integral;  
+
+}
+
+long double fixedFfermi_long(const long double k, const long double eta, const long double theta,
+		   const long double h, const long double hMIN, const long double hMAX)
+{
+  int ii,num;
+  long double t, x, dx, integral=0.0L;
+  long double h_MIN,h_MAX;
+
+  
+  num = (int) -hMIN/h;
+  h_MIN = -num*h;
+  
+  num = (int) hMAX/h;
+  h_MAX = num*h;
+  
+
+  num = (int) (h_MAX-h_MIN)/h;
+  #pragma omp simd
+  #pragma ivdep
+  for(ii=0;ii<=num;ii++)
+  {
+    t = h_MIN + ii*h;
+    //t = h_MAX -	 ii*h;
     x = expl(t-expl(-t));
     dx = 1.0L +expl(-t);
     integral+= 1.0L/(1.0L+expl(x)*expl(-eta) )
