@@ -15,6 +15,13 @@ void fixedFfermi_derivatives(const double, const double, const double,
 		   const double, double, double, 
 		   double *, double *, double *,
 		   double *, double *, double *);
+void fixedFfermi_derivatives_v2(const double, const double, const double,
+		   const double, double, double, 
+		   double *, double *, double *,
+		   double *, double *, double *,
+		   double *, double *, double *, double *,
+		   int
+		   );
 double fixedFfermi(const double, const double, const double,
 		   const double, double, double);
 float  fixedFfermif(const float, const float, const float,
@@ -32,7 +39,7 @@ double quickFfermi1(double,double,double);
 double quickFfermi2(double,double,double);
 double quickFfermi3(double,double,double);
 double quickFfermi4(double,double,double);
-double dfermi(double,double,double);
+//double dfermi(double,double,double);
 
 //internal functions
 double incomplete_half_fractional_gamma( double, double);
