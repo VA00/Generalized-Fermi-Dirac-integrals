@@ -70,7 +70,57 @@ void fixedFfermi_derivatives(const double k, const double eta, const double thet
 
 }
 
+void fixedFfermi_derivatives_v2(const double k, const double eta, const double theta,
+       const double h, double hMIN, double hMAX, 
+       double * F, double *dF_deta, double *d2F_deta2,
+       double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta,
+       double * d3F_dtheta3, double *d3F_dtheta2_deta, double *d3F_dtheta_deta3, double *d3F_deta3,
+	   int D_MAX)
+{
+  int ii,num;
+  double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0;
+  double xst,dxst,factor, denom, denomi; //AUX vars similar to used by FXT code
+  
+  num = (int) -hMIN/h;
+  hMIN = -num*h;
+  
+  num = (int) hMAX/h;
+  hMAX = num*h;
+#if DEBUG  
+  printf("fixedFfermi: %d %lf %lf\n", num, hMIN,hMAX);
+#endif  
+  
+  num = (int) (hMAX-hMIN)/h;
 
+  for(ii=0;ii<=num;ii++)
+  {
+    t = hMIN + ii*h;
+    //t = hMAX - ii*h;
+
+    x    = exp(t-exp(-t));
+    dx   = 1.0 +exp(-t); // This is NOT D[x,t], D[x,t] = x*dx !
+	xst  = 1.0+ 0.5*theta*x;
+	dxst = sqrt(xst);
+	factor = exp(x-eta);
+	denom  = 1.0+factor;
+    denomi = 1.0/denom;	
+	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*dxst * dx;
+    integral             +=   f;
+	if(D_MAX>0) integral_deta        +=   f*factor*denomi; 
+	if(D_MAX>1) integral_deta2       +=   f*factor*denomi*denomi*(factor-1.0); 
+	if(D_MAX>0) integral_dtheta      +=   f*0.25*x/xst;
+	if(D_MAX>1) integral_dtheta2     +=  -f*0.25*x/xst*x/xst*0.25;
+	if(D_MAX>1) integral_deta_dtheta +=   f*0.25*x/xst*factor*denomi;
+  }
+  
+  *F                 = h*integral;
+  *dF_deta           = h*integral_deta;
+  *d2F_deta2         = h*integral_deta2;
+  *dF_dtheta         = h*integral_dtheta;
+  *d2F_dtheta2       = h*integral_dtheta2;
+  *d2F_dtheta_deta   = h*integral_deta_dtheta;
+
+}
 
 
 double fixedFfermi(const double k, const double eta, const double theta,
