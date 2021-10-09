@@ -74,11 +74,13 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
        const double h, double hMIN, double hMAX, 
        double * F, double *dF_deta, double *d2F_deta2,
        double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta,
-       double * d3F_dtheta3, double *d3F_dtheta2_deta, double *d3F_dtheta_deta3, double *d3F_deta3,
+       double * d3F_dtheta3, double *d3F_dtheta2_deta, double *d3F_dtheta_deta2, double *d3F_deta3,
 	   int D_MAX)
 {
   int ii,num;
-  double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0;
+  double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, 
+         integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0,
+         integral_dtheta3=0.0, integral_dtheta2_deta=0.0, integral_dtheta_deta2=0.0, integral_deta3=0.0;
   double xst,dxst,factor, denom, denomi; //AUX vars similar to used by FXT code
   
   num = (int) -hMIN/h;
@@ -105,12 +107,17 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
 	denom  = 1.0+factor;
     denomi = 1.0/denom;	
 	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*dxst * dx;
-    integral             +=   f;
+    //A lot of optimalization possible below, blocked by if() construct
+    integral                         +=   f;
 	if(D_MAX>0) integral_deta        +=   f*factor*denomi; 
+    if(D_MAX>0) integral_dtheta      +=   f*0.25*x/xst;
 	if(D_MAX>1) integral_deta2       +=   f*factor*denomi*denomi*(factor-1.0); 
-	if(D_MAX>0) integral_dtheta      +=   f*0.25*x/xst;
 	if(D_MAX>1) integral_dtheta2     +=  -f*0.25*x/xst*x/xst*0.25;
 	if(D_MAX>1) integral_deta_dtheta +=   f*0.25*x/xst*factor*denomi;
+	if(D_MAX>2) integral_dtheta3          +=   (f*0.25*x/xst*x/xst*0.25)*0.75*x/xst;
+	if(D_MAX>2) integral_dtheta2_deta     +=   (-f*0.25*x/xst*x/xst*0.25)*factor*denomi;
+	if(D_MAX>2) integral_dtheta_deta2     +=   (f*factor*denomi*denomi*(factor-1.0))*x/4.0/xst;
+	if(D_MAX>2) integral_deta3            +=   0.0; //NOT YET implemented; 3-rd derivatives UNTESTED
   }
   
   *F                 = h*integral;
@@ -119,6 +126,10 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
   *dF_dtheta         = h*integral_dtheta;
   *d2F_dtheta2       = h*integral_dtheta2;
   *d2F_dtheta_deta   = h*integral_deta_dtheta;
+  *d3F_dtheta3       = h*integral_dtheta3;
+  *d3F_dtheta2_deta  = h*integral_dtheta2_deta;
+  *d3F_dtheta_deta2  = h*integral_dtheta_deta2;
+  *d3F_deta3         = h*integral_deta3;
 
 }
 
