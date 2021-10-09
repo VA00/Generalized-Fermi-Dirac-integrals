@@ -54,8 +54,9 @@ int main()
        //fixedFfermi_derivatives   (k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
        //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, NULL, NULL, NULL, NULL, 0);
        //result = fixedFfermi(k,eta,theta, 0.125, -5.0, 5.0);
+       //dfermi_(&k,&eta,&theta, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
+       result = quickFfermi2(k,eta,theta);
 
-       dfermi_(&k,&eta,&theta, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
        theta = theta + theta_STEP;
 	  }
       while(theta<=theta_STOP);
