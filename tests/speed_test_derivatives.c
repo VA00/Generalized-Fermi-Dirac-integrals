@@ -22,8 +22,10 @@ int main()
   double k_STOP,eta_STOP,theta_STOP;
   double k_STEP,eta_STEP,theta_STEP;
   double F, dF_deta, d2F_deta2, 
-		 dF_dtheta, d2F_dtheta2, d2F_deta_dtheta;
+		 dF_dtheta, d2F_dtheta2, d2F_deta_dtheta,
+		 d3F_dtheta3, d3F_dtheta2_deta, d3F_dtheta_deta2, d3F_deta3;
   double eq3_LHS,eq3_RHS;
+  int counter=0;
   
   
   
@@ -40,6 +42,7 @@ int main()
   theta_STOP  =  128.0;
   theta_STEP  =  1.0;
   
+  counter=0;
   k=k_START;
   do
   {
@@ -50,12 +53,14 @@ int main()
 	  theta = theta_START;
 	  do
       {
+		  counter++;
        //printf("%lf %lf %lf\n", k, eta, theta);
        //fixedFfermi_derivatives   (k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
-       //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, NULL, NULL, NULL, NULL, 0);
+       //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3, 0);
        //result = fixedFfermi(k,eta,theta, 0.125, -5.0, 5.0);
+       result = Ffermi(k,eta,theta);
        //dfermi_(&k,&eta,&theta, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
-       result = quickFfermi2(k,eta,theta);
+       //result = quickFfermi2(k,eta,theta);
 
        theta = theta + theta_STEP;
 	  }
@@ -69,7 +74,7 @@ int main()
 
   
 
-  
+  printf("counter = %d\n",counter);
 
   
   
