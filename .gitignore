@@ -69,3 +69,6 @@ missing
 *.Plo
 autom4te.cache/
 COPYING
+
+__pycache__
+.ropeproject

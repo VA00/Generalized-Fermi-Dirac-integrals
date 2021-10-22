@@ -10,10 +10,7 @@ import glob
 import argparse
 from cffi import FFI
 
-# definition of functions we want to use
-ffibuilder = FFI()
-ffibuilder.cdef(
-    """
+CDEF = """
     double Gfermi(double, double, double);
     double Gp(double, double, double);
     double Gm(double, double, double);
@@ -43,7 +40,11 @@ ffibuilder.cdef(
 
     double gaussFfermi(const double, const double, const double);
     float gaussFfermif(const float, const float, const float);
-    """)
+"""
+
+# definition of functions we want to use
+ffibuilder = FFI()
+ffibuilder.cdef(CDEF)
 
 def parse_arguments():
     """Argument parsing from command line, using argparse.
