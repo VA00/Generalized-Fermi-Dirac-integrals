@@ -7,7 +7,10 @@ import sys
 from Derivatives import Derivatives
 from cffi import FFI
 ffi = FFI()
+ffi_stdlib = FFI()
 
+ffi_stdlib.cdef("int snprintf ( char * s, size_t n, const char * format, ... );")
+_libc = ffi_stdlib.dlopen("c")
 try:
     import _fermidirac_api.lib as _fermi
 except ImportError as exc:
@@ -20,7 +23,20 @@ except ImportError as exc:
         sys.exit(f"Library not found ({exc})!")
 
 from mpmath import mp
+mp.dps = 128
 
+def extract_long_double(ctype_long):
+    """Function to extract long double into a high-precision mp.mpf object,
+    required as python and ctypes don't support using long double.
+
+    :param Any ctype_long: ctype containing long to extract.
+    :return: the extracted long double at 128 digit max precision.
+    :rtype: Any
+    """
+    size = 1024
+    buf = ffi_stdlib.new("char[]", size)
+    _libc.snprintf(buf, size, b'%.128Le', ctype_long)
+    return mp.mpf(ffi_stdlib.string(buf).decode('ascii'))
 
 def Ffermi(k, eta, theta):
     """The generalized F-type Fermi integral quadrature.
@@ -84,8 +100,21 @@ def Ffermi_long(k, eta, theta):
     :return: The result of the sinh-tanh quadrature.
     :rtype: float
     """
-    ### TODO: read the long double precision correctly instead of truncating.
-    return mp.mpf(float(_fermi.Ffermi_long(k, eta, theta)))
+    return extract_long_double(_fermi.Ffermi_long(k, eta, theta))
+
+def fixedFfermi_long(k, eta, theta, h, hmin, hmax):
+    """The generalized F-type Fermi integral quadrature, using fixed abscissas and weights.
+
+    :param float k: The k parameter, indicating the power of x in the numerator of the integral.
+    :param float eta: The eta parameter, indicating the change to the exponent in the denominator of the integral.
+    :param float theta: The theta parameter, indicating the scaling of the x parameter in the square root.
+    :param float h: The h parameter, indicating step size.
+    :param float hmin: The hmin parameter, indicating lower bound of quadrature to start the stepping on.
+    :param float hmax: The hmax parameter, indicating upper bound to end the stepping on.
+    :return: The result of the sinh-tanh quadrature.
+    :rtype: float
+    """
+    return extract_long_double(_fermi.fixedFfermi_long(k, eta, theta, h, hmin, hmax))
 
 def gaussFfermi(k, eta, theta):
     """Gauss subdivision F-type Fermi function, for checking results (based on code by F.X.Timmes).
