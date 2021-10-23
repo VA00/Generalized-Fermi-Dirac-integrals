@@ -39,13 +39,12 @@ def fixedFfermi_derivatives(k, eta, theta, h, hmin, hmax):
     :param float k: The k parameter, indicating the power of x in the numerator of the integral.
     :param float eta: The eta parameter, indicating the change to the exponent in the denominator of the integral.
     :param float theta: The theta parameter, indicating the scaling of the x parameter in the square root.
-    :param float h: The h parameter, indicating ???.
-    :param float hmin: The hmin parameter, indicating ???.
-    :param float hmax: The hmax parameter, indicating ???.
+    :param float h: The h parameter, indicating step size.
+    :param float hmin: The hmin parameter, indicating lower bound of quadrature to start the stepping on.
+    :param float hmax: The hmax parameter, indicating upper bound to end the stepping on.
     :return: The result of the sinh-tanh quadrature.
     :rtype: float
     """
-    ### TODO: fix description of parameters
     f = ffi.new("double *")
     df_deta = ffi.new("double *")
     d2f_deta2 = ffi.new("double *")
@@ -68,13 +67,12 @@ def fixedFfermi(k, eta, theta, h, hmin, hmax):
     :param float k: The k parameter, indicating the power of x in the numerator of the integral.
     :param float eta: The eta parameter, indicating the change to the exponent in the denominator of the integral.
     :param float theta: The theta parameter, indicating the scaling of the x parameter in the square root.
-    :param float h: The h parameter, indicating ???.
-    :param float hmin: The hmin parameter, indicating ???.
-    :param float hmax: The hmax parameter, indicating ???.
+    :param float h: The h parameter, indicating step size.
+    :param float hmin: The hmin parameter, indicating lower bound of quadrature to start the stepping on.
+    :param float hmax: The hmax parameter, indicating upper bound to end the stepping on.
     :return: The result of the sinh-tanh quadrature.
     :rtype: float
     """
-    ### TODO: fix description of parameters
     return _fermi.fixedFfermi(k, eta, theta, h, hmin, hmax)
 
 def Ffermi_long(k, eta, theta):
