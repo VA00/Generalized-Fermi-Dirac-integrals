@@ -103,7 +103,7 @@ def Ffermi_long(k, eta, theta):
     return extract_long_double(_fermi.Ffermi_long(k, eta, theta))
 
 def fixedFfermi_long(k, eta, theta, h, hmin, hmax):
-    """The generalized F-type Fermi integral quadrature, using fixed abscissas and weights.
+    """The generalized F-type Fermi integral quadrature, using fixed abscissas and weights, with long precision.
 
     :param float k: The k parameter, indicating the power of x in the numerator of the integral.
     :param float eta: The eta parameter, indicating the change to the exponent in the denominator of the integral.
