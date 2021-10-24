@@ -4,7 +4,7 @@ Wrapper file for the api and abi versions of the library.
 """
 
 import sys
-from Derivatives import Derivatives
+from fermidirac.helpers.Derivatives import Derivatives
 from cffi import FFI
 ffi = FFI()
 ffi_stdlib = FFI()
@@ -14,8 +14,7 @@ _libc = ffi_stdlib.dlopen("c")
 try:
     import _fermidirac_api.lib as _fermi
 except ImportError as exc:
-    print(f"API not found ({exc}), attempting ABI...")
-    from build_cffi_interface import CDEF
+    from fermidirac.interface.build_cffi_interface import CDEF
     try:
         ffi.cdef(CDEF)
         _fermi = ffi.dlopen("fermidirac")
