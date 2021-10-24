@@ -30,4 +30,3 @@ class Derivatives:
  ∂²f/∂η² : {self.d2f_deta2},
  ∂²f/∂θ² : {self.d2f_dtheta2},
  ∂²f/∂η∂θ: {self.d2f_deta_dtheta}"""
-
