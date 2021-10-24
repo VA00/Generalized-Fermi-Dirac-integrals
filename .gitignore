@@ -70,5 +70,8 @@ missing
 autom4te.cache/
 COPYING
 
+# Python files
 __pycache__
 .ropeproject
+python/dist
+
