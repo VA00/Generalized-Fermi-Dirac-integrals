@@ -1,4 +1,4 @@
-import cfermidirac
+import fermidirac.interface.cfermidirac as cfermidirac
 
 k = 4.0
 result = cfermidirac.Ffermi(k, 1.0, 1.0)
