@@ -32,3 +32,7 @@ def test_benchmark_gm(benchmark):
 
 def test_benchmark_gp(benchmark):
     benchmark(Gp, 1.0, 1.0, 1.0)
+
+
+def test_benchmark_gaussfermi(benchmark):
+    benchmark(gaussFfermi, 4.0, 1.0, 1.0)
