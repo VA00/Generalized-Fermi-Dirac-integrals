@@ -19,11 +19,11 @@ def generate_result_csv_fermi_functions():
         "Ffermi_long",
         "fixedFfermi_long",
         "fixedFfermi_derivatives",
-        "df/deta",
-        "df/dtheta",
-        "d2f/deta2",
-        "d2f/dtheta2",
-        "d2f/detadtheta"
+        "df_deta",
+        "df_dtheta",
+        "d2f_deta2",
+        "d2f_dtheta2",
+        "d2f_deta_dtheta"
     ]
 
     rows = []
