@@ -6,7 +6,7 @@ Defines relations between various derivatives, which allows cross-checking of ca
 from fermidirac.helpers.Derivatives import Derivatives
 from fermidirac.interface import cfermidirac
 
-def cox_giuli(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives):
+def cox_giuli(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives, h=0.125, hmin=-4.0, hmax=4.0):
     """Calculates both sides of the following relation:
     θ ∂Fk(η,θ)/∂θ = ∂Fk+1(η,θ)/∂η - (k+1)Fk(η,θ)
 
@@ -16,18 +16,19 @@ def cox_giuli(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives):
     :param float k: k parameter
     :param float eta: eta parameter
     :param float theta: theta parameter
+    :param float h: step size
+    :param float hmin: lower bound of quadrature area
+    :param float hmax: upper bound of quadrature area
     :param func quadrature: function to use for calculations, default fixedFfermi_derivatives.
     :returns: 2-tuple containing result of left and right hand side.
     """
-    h, hmin, hmax = 0.125, -4.0, 4.0
-
     f_k = quadrature(k, eta, theta, h, hmin, hmax)
     f_kplus1 = quadrature(k + 1.0, eta, theta, h, hmin, hmax)
 
     return (theta * f_k.df_dtheta, f_kplus1.df_deta - (k + 1.0)*f_k.f)
 
 
-def gong_zejda_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives):
+def gong_zejda_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives, h=0.125, hmin=-4.0, hmax=4.0):
     """Calculates both sides of the following relation:
     Fk+1(η,θ) = 4 ∂Fk(η,θ)/∂θ + 2θ ∂Fk+1(η,θ)/∂θ
 
@@ -37,18 +38,19 @@ def gong_zejda_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFfermi_deriva
     :param float k: k parameter
     :param float eta: eta parameter
     :param float theta: theta parameter
+    :param float h: step size
+    :param float hmin: lower bound of quadrature area
+    :param float hmax: upper bound of quadrature area
     :param func quadrature: function to use for calculations, default fixedFfermi_derivatives.
     :returns: 2-tuple containing result of left and right hand side.
     """
-    h, hmin, hmax = 0.125, -4.0, 4.0
-
     f_k = quadrature(k, eta, theta, h, hmin, hmax)
     f_kplus1 = quadrature(k + 1.0, eta, theta, h, hmin, hmax)
 
     return (f_kplus1.f, 4 * f_k.df_dtheta + 2 * theta * f_kplus1.df_dtheta)
 
 
-def gong_zejda_kminus1_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives):
+def gong_zejda_kminus1_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives, h=0.125, hmin=-4.0, hmax=4.0):
     """Calculates both sides of the following relation:
     ∂Fk+1(η,θ)/∂η = (k + 3/2) Fk(η,θ) - 2 ∂Fk-1(η,θ)/∂θ
 
@@ -58,11 +60,12 @@ def gong_zejda_kminus1_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFferm
     :param float k: k parameter
     :param float eta: eta parameter
     :param float theta: theta parameter
+    :param float h: step size
+    :param float hmin: lower bound of quadrature area
+    :param float hmax: upper bound of quadrature area
     :param func quadrature: function to use for calculations, default fixedFfermi_derivatives.
     :returns: 2-tuple containing result of left and right hand side.
     """
-    h, hmin, hmax = 0.125, -4.0, 4.0
-
     f_kminus1 = quadrature(k - 1.0, eta, theta, h, hmin, hmax)
     f_k = quadrature(k, eta, theta, h, hmin, hmax)
     f_kplus1 = quadrature(k + 1.0, eta, theta, h, hmin, hmax)
@@ -70,7 +73,7 @@ def gong_zejda_kminus1_k_kplus1(k, eta, theta, quadrature=cfermidirac.fixedFferm
     return (f_kplus1.df_deta, (k + 1.5) * f_k.f - 2 * f_kminus1.df_dtheta)
 
 
-def gong_zejda_etaderivatives(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives):
+def gong_zejda_etaderivatives(k, eta, theta, quadrature=cfermidirac.fixedFfermi_derivatives, h=0.125, hmin=-4.0, hmax=4.0):
     """Calculates both sides of the following relation:
     k Fk-1(η,θ) + (k/2 + 3/4)θ Fk(η,θ) = ∂Fk(η,θ)/∂η + θ/2 ∂Fk+1(η,θ)/∂η
 
@@ -80,11 +83,12 @@ def gong_zejda_etaderivatives(k, eta, theta, quadrature=cfermidirac.fixedFfermi_
     :param float k: k parameter
     :param float eta: eta parameter
     :param float theta: theta parameter
+    :param float h: step size
+    :param float hmin: lower bound of quadrature area
+    :param float hmax: upper bound of quadrature area
     :param func quadrature: function to use for calculations, default fixedFfermi_derivatives.
     :returns: 2-tuple containing result of left and right hand side.
     """
-    h, hmin, hmax = 0.125, -4.0, 4.0
-
     f_kminus1 = quadrature(k - 1.0, eta, theta, h, hmin, hmax)
     f_k = quadrature(k, eta, theta, h, hmin, hmax)
     f_kplus1 = quadrature(k + 1.0, eta, theta, h, hmin, hmax)
