@@ -1,9 +1,9 @@
+import pytest
+import math
+
 from fermidirac.helpers.derivative_relations import *
 from fermidirac.interface.cfermidirac import Ffermi, gaussFfermi
 from itertools import product
-
-import pytest
-import math
 
 PARAMETER_TUPLES = list(product(
     [(x - 1) * 0.5 for x in range(10)], # fractional k's from -1/2 to 4.0 with 0.5 step
@@ -11,7 +11,7 @@ PARAMETER_TUPLES = list(product(
     [(x + 1) * 0.2 for x in range(25)], # fractional thetas from 0 to 5.0 with 0.2 step
 ))
 
-RELATIVE_TOLERANCE = 1e-9 # tolerance relative to larger absolute value in fractional terms
+RELATIVE_TOLERANCE = 1e-6 # tolerance relative to larger absolute value in fractional terms
 ABSOLUTE_TOLERANCE = 0.0 # useful when one of the comparisons is to 0.0
 
 @pytest.mark.parametrize("k, eta, theta", PARAMETER_TUPLES)
