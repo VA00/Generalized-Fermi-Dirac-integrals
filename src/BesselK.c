@@ -260,7 +260,7 @@ double BesselK0(const double x)
   1.4594189037511445958046540e+00};
   
   double y, yy, K0;
-  double P21,Q2,P7;
+  double P21,Q2,P7,P6,I0;
   int i;
 
 
@@ -300,8 +300,15 @@ double BesselK0(const double x)
     P7 = y*P1[7];
     for(i=6;i>0;i--) P7 = y*(P1[i]+P7);
     P7 = P7+ P1[0];  
-   
+    
+    y= 0.25*x*x;
+    P6 = y*P2[5];
+    for(i=5;i>0;i--) P6 = y*(P2[i]+P6);
+    P6 = P6+ P2[0];  
+    I0 = 1.0+y*P6;  
+
     return P7-log(x)*BesselI0(x);
+    return P7-log(x)*I0;
   
    }
 
@@ -365,8 +372,8 @@ const double Q3[3] = {
 7.2398781933228355889996920e-01,
 1.4835841581744134589980018e+00};
   
-  double y, yy;
-  double P22,Q2,P8;
+   double y, yy;
+  double P22,Q2,P8,P5,I1;
   int i;
 
 
@@ -406,8 +413,17 @@ const double Q3[3] = {
     P8 = y*P1[8];
     for(i=7;i>0;i--) P8 = y*(P1[i]+P8);
     P8 = P8+ P1[0];  
-   
-    return x*P8+log(x)*BesselI1(x)+1.0/x;
+
+    y=0.25*x*x;
+
+    P5 = y*P2[5];
+    for(i=4;i>0;i--) P5 = y*(P2[i]+P5);
+    P5 = P5+ P2[0];  
+    I1 = 0.5*x*(1.0+0.5*y+y*y*P5);
+
+//    return x*P8+log(x)*BesselI1(x)+1.0/x;
+    return x*P8+log(x)*I1+1.0/x;
+  
   
    }
 
@@ -532,6 +548,7 @@ double BesselK(const double nu, const double x)
     #endif
 	
     if(nu==0.0) return BesselK0(x);
+    if(nu==1.0) return BesselK1(x);
 	return BesselK_dbl_exp(nu,x,0.0,3);
 	
 }
