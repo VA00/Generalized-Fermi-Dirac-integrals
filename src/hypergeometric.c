@@ -439,6 +439,7 @@ double hypU(double a, double b, double z, const double precision, const int SERI
    
 }
 
+/* HypergeometricU[1 + k, 5/2 + k, x] */
 double U_half_frac(double k, double x)
 {
 	
