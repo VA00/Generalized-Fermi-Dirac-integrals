@@ -301,14 +301,16 @@ double BesselK0(const double x)
     for(i=6;i>0;i--) P7 = y*(P1[i]+P7);
     P7 = P7+ P1[0];  
     
+    /* better to use external I0
     y= 0.25*x*x;
     P6 = y*P2[5];
     for(i=5;i>0;i--) P6 = y*(P2[i]+P6);
     P6 = P6+ P2[0];  
     I0 = 1.0+y*P6;  
+    */
 
     return P7-log(x)*BesselI0(x);
-    return P7-log(x)*I0;
+    //return P7-log(x)*I0;
   
    }
 
