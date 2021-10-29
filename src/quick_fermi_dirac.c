@@ -17,8 +17,11 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 
 */
 
-
-
+inline double sigmoid(double z)
+{
+  //return 1.0/(1.0+exp(-z);
+  return 0.5*tanh(0.5*z)+0.5; //the fastest, clean (no conditionals)
+}
 
 void fixedFfermi_derivatives(const double k, const double eta, const double theta,
        const double h, double hMIN, double hMAX, 
@@ -81,7 +84,7 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
   double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, 
          integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0,
          integral_dtheta3=0.0, integral_dtheta2_deta=0.0, integral_dtheta_deta2=0.0, integral_deta3=0.0;
-  double xst,dxst,factor, denom, denomi; //AUX vars similar to used by FXT code
+  double g2,g,factor, denom, s; //AUX vars similar to used by FXT code
   
   num = (int) -hMIN/h;
   hMIN = -num*h;
@@ -99,24 +102,24 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
     t = hMIN + ii*h;
     //t = hMAX - ii*h;
 
-    x    = exp(t-exp(-t));
-    dx   = 1.0 +exp(-t); // This is NOT D[x,t], D[x,t] = x*dx !
-	xst  = 1.0+ 0.5*theta*x;
-	dxst = sqrt(xst);
+    x   = exp(t-exp(-t));
+    dx  = 1.0 +exp(-t); // This is NOT D[x,t], D[x,t] = x*dx !
+	g2  = 1.0+ 0.5*theta*x;
+	g   = sqrt(g2);
 	factor = exp(x-eta);
 	denom  = 1.0+factor;
-    denomi = 1.0/denom;	
-	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*dxst * dx;
+    s = 1.0/denom;	
+	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*g*dx;
     //A lot of optimalization possible below, blocked by if() construct
     integral                         +=   f;
-	if(D_MAX>0) integral_deta        +=   f*factor*denomi; 
-    if(D_MAX>0) integral_dtheta      +=   f*0.25*x/xst;
-	if(D_MAX>1) integral_deta2       +=   f*factor*denomi*denomi*(factor-1.0); 
-	if(D_MAX>1) integral_dtheta2     +=  -f*0.25*x/xst*x/xst*0.25;
-	if(D_MAX>1) integral_deta_dtheta +=   f*0.25*x/xst*factor*denomi;
-	if(D_MAX>2) integral_dtheta3          +=   (f*0.25*x/xst*x/xst*0.25)*0.75*x/xst;
-	if(D_MAX>2) integral_dtheta2_deta     +=   (-f*0.25*x/xst*x/xst*0.25)*factor*denomi;
-	if(D_MAX>2) integral_dtheta_deta2     +=   (f*factor*denomi*denomi*(factor-1.0))*x/4.0/xst;
+	if(D_MAX>0) integral_deta        +=   f*factor*s; 
+    if(D_MAX>0) integral_dtheta      +=   f*0.25*x/g2;
+	if(D_MAX>1) integral_deta2       +=   f*factor*s*s*(factor-1.0); 
+	if(D_MAX>1) integral_dtheta2     +=  -f*0.25*x/g2*x/g2*0.25;
+	if(D_MAX>1) integral_deta_dtheta +=   f*0.25*x/g2*factor*s;
+	if(D_MAX>2) integral_dtheta3          +=   (f*0.25*x/g2*x/g2*0.25)*0.75*x/g2;
+	if(D_MAX>2) integral_dtheta2_deta     +=   (-f*0.25*x/g2*x/g2*0.25)*factor*s;
+	if(D_MAX>2) integral_dtheta_deta2     +=   (f*factor*s*s*(factor-1.0))*x/4.0/g2;
 	if(D_MAX>2) integral_deta3            +=   0.0; //NOT YET implemented; 3-rd derivatives UNTESTED
   }
   
@@ -133,6 +136,67 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
 
 }
 
+
+void fixedFfermi_derivatives_v3(const double k, const double eta, const double theta,
+       const double h, double hMIN, double hMAX, 
+       double * F, double *dF_deta, double *d2F_deta2,
+       double * dF_dtheta, double *d2F_dtheta2, double *d2F_dtheta_deta,
+       double * d3F_dtheta3, double *d3F_dtheta2_deta, double *d3F_dtheta_deta2, double *d3F_deta3)
+{
+  int ii,num;
+  double t, x, dx, f, integral=0.0, integral_deta=0.0, integral_deta2=0.0, integral_dtheta=0.0, integral_dtheta2=0.0, integral_deta_dtheta=0.0;
+  double integral_dtheta3=0.0, integral_dtheta2_deta=0.0, integral_dtheta_deta2=0.0, integral_deta3=0.0;
+	
+  double s,g,g2,z; //AUX vars
+  
+  num = (int) -hMIN/h;
+  hMIN = -num*h;
+  
+  num = (int) hMAX/h;
+  hMAX = num*h;
+  
+  num = (int) (hMAX-hMIN)/h;
+  
+
+  for(ii=0;ii<=num;ii++)
+  {
+    t = hMIN + ii*h;
+    //t = hMAX - ii*h;
+
+    x    = exp(t-exp(-t));
+    dx   = 1.0 +exp(-t); // This is NOT D[x,t], D[x,t] = x*dx !
+	g2  = 1.0+ 0.5*theta*x;
+	g = sqrt(g2);
+	s = sigmoid(eta-x);
+
+	f = s*exp( (k+1.0)*(t - exp(-t)) )*g*dx;
+
+    z = 0.25*x/g2;
+
+    integral                  +=   f;
+	integral_deta             +=   f*(1.0-s); 
+	integral_deta2            +=   f*(1.0+s*(2.0*s-3.0)); 
+	integral_dtheta           +=   f*z;
+	integral_dtheta2          +=  -f*z*z;
+	integral_deta_dtheta      +=   f*z*(1.0-s);
+	integral_dtheta3          +=   3.0*f*z*z*z;
+	integral_dtheta2_deta     +=   f*z*(1.0-s);
+	integral_dtheta_deta2     +=  -f*z*z*(1.0+s*(2.0*s-3.0));
+	integral_deta3            +=   1.0 + s*(-7.0 + (12.0 - 6.0*s)*s);
+  }
+  
+  *F                 = h*integral;
+  *dF_deta           = h*integral_deta;
+  *d2F_deta2         = h*integral_deta2;
+  *dF_dtheta         = h*integral_dtheta;
+  *d2F_dtheta2       = h*integral_dtheta2;
+  *d2F_dtheta_deta   = h*integral_deta_dtheta;
+  *d3F_dtheta3       = h*integral_dtheta3;
+  *d3F_dtheta2_deta  = h*integral_dtheta2_deta;
+  *d3F_dtheta_deta2  = h*integral_dtheta_deta2;
+  *d3F_deta3         = h*integral_deta3;
+
+}
 
 double fixedFfermi(const double k, const double eta, const double theta,
 		   const double h, double hMIN, double hMAX)
