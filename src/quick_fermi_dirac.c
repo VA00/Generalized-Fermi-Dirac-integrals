@@ -173,6 +173,12 @@ void fixedFfermi_derivatives_v3(const double k, const double eta, const double t
 
     z = 0.25*x/g2;
 
+    /*
+    s1 = s*(1-s);
+    s2 = s1*(1-2.0*s);
+    s3 = s1*(1-6.0*s1);
+    */
+
     integral                  +=   f;
 	integral_deta             +=   f*(1.0-s); 
 	integral_deta2            +=   f*(1.0+s*(2.0*s-3.0)); 
@@ -182,7 +188,7 @@ void fixedFfermi_derivatives_v3(const double k, const double eta, const double t
 	integral_dtheta3          +=   3.0*f*z*z*z;
 	integral_dtheta2_deta     +=  -f*z*z*(1.0-s);
 	integral_dtheta_deta2     +=   f*z*(1.0+s*(2.0*s-3.0));
-	integral_deta3            +=   1.0 + s*(-7.0 + (12.0 - 6.0*s)*s);
+	integral_deta3            +=   f*(1.0 + s*(-7.0 + (12.0 - 6.0*s)*s));
   }
   
   *F                 = h*integral;
