@@ -180,8 +180,8 @@ void fixedFfermi_derivatives_v3(const double k, const double eta, const double t
 	integral_dtheta2          +=  -f*z*z;
 	integral_deta_dtheta      +=   f*z*(1.0-s);
 	integral_dtheta3          +=   3.0*f*z*z*z;
-	integral_dtheta2_deta     +=   f*z*(1.0-s);
-	integral_dtheta_deta2     +=  -f*z*z*(1.0+s*(2.0*s-3.0));
+	integral_dtheta2_deta     +=  -f*z*z*(1.0-s);
+	integral_dtheta_deta2     +=   f*z*(1.0+s*(2.0*s-3.0));
 	integral_deta3            +=   1.0 + s*(-7.0 + (12.0 - 6.0*s)*s);
   }
   
