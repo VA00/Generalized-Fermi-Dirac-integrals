@@ -19,7 +19,7 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 
 inline double sigmoid(double z)
 {
-  //return 1.0/(1.0+exp(-z);
+  //return 1.0/(1.0+exp(-z));
   return 0.5*tanh(0.5*z)+0.5; //the fastest, clean (no conditionals)
 }
 
@@ -181,7 +181,8 @@ void fixedFfermi_derivatives_v3(const double k, const double eta, const double t
 
     integral                  +=   f;
 	integral_deta             +=   f*(1.0-s); 
-	integral_deta2            +=   f*(1.0+s*(2.0*s-3.0)); 
+	integral_deta2            +=   f*(1.0-s)*(1.0-2.0*s); 
+	//integral_deta2            +=   f*(1.0+s*(2.0*s-3.0)); //WHY THIS PRODUCES 10x more error than the rest? A.O. 2021-10-30
 	integral_dtheta           +=   f*z;
 	integral_dtheta2          +=  -f*z*z;
 	integral_deta_dtheta      +=   f*z*(1.0-s);
