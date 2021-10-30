@@ -22,6 +22,12 @@ void fixedFfermi_derivatives_v2(const double, const double, const double,
 		   double *, double *, double *, double *,
 		   int
 		   );
+void fixedFfermi_derivatives_v3(const double, const double, const double,
+		   const double, double, double, 
+		   double *, double *, double *,
+		   double *, double *, double *,
+		   double *, double *, double *, double *
+		   );
 double fixedFfermi(const double, const double, const double,
 		   const double, double, double);
 float  fixedFfermif(const float, const float, const float,
