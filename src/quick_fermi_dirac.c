@@ -120,7 +120,7 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
 	if(D_MAX>2) integral_dtheta3          +=   (f*0.25*x/g2*x/g2*0.25)*0.75*x/g2;
 	if(D_MAX>2) integral_dtheta2_deta     +=   (-f*0.25*x/g2*x/g2*0.25)*factor*s;
 	if(D_MAX>2) integral_dtheta_deta2     +=   (f*factor*s*s*(factor-1.0))*x/4.0/g2;
-	if(D_MAX>2) integral_deta3            +=   0.0; //NOT YET implemented; 3-rd derivatives UNTESTED
+	if(D_MAX>2) integral_deta3            +=   f*(1.0-7.0*s+12.0*s*s-6.0*s*s*s); //NOT YET implemented; 3-rd derivatives UNTESTED
   }
   
   *F                 = h*integral;
