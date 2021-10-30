@@ -32,15 +32,15 @@ int main()
 
   k_START     = -0.5;
   k_STOP      =  5.0;
-  k_STEP      =  0.125;
+  k_STEP      =  2.5;
 			  
-  eta_START   = -64.0;
-  eta_STOP    = 64.0;
-  eta_STEP    =  0.5;
+  eta_START   = -4.0;
+  eta_STOP    =  4.0;
+  eta_STEP    =  5.0;
 			  
   theta_START =  0.0;
-  theta_STOP  =  128.0;
-  theta_STEP  =  1.0;
+  theta_STOP  =  8.0;
+  theta_STEP  =  1;
   
   counter=0;
   k=k_START;
@@ -56,10 +56,14 @@ int main()
 		  counter++;
        //printf("%lf %lf %lf\n", k, eta, theta);
        //fixedFfermi_derivatives   (k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
-       //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3, 0);
+       fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3, 3);
+       //fixedFfermi_derivatives_v3(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3);
+       printf("%.1lf %.1lf %.1lf %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,F, dF_deta, d2F_deta2, dF_dtheta, d2F_dtheta2, d2F_deta_dtheta, d3F_dtheta3, d3F_dtheta2_deta, d3F_dtheta_deta2, d3F_deta3);
        //result = fixedFfermi(k,eta,theta, 0.125, -5.0, 5.0);
-       result = Ffermi(k,eta,theta);
-       //dfermi_(&k,&eta,&theta, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
+       //result = Ffermi(k,eta,theta);
+       dfermi_(&k,&eta,&theta, &F, &dF_deta, &dF_dtheta, &d2F_deta2, &d2F_dtheta2, &d2F_deta_dtheta);
+       printf("%.1lf %.1lf %.1lf %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,F, dF_deta, d2F_deta2, dF_dtheta, d2F_dtheta2, d2F_deta_dtheta);
+       printf("\n");
        //result = quickFfermi2(k,eta,theta);
 
        theta = theta + theta_STEP;
