@@ -28,8 +28,8 @@ int main()
 		 d3Fdtheta3, d3Fdtheta2deta, d3Fdthetadeta2, d3Fdeta3;
 
   double eq3_LHS,eq3_RHS;
-  double x[13];
-  int ii;
+  double x[13], results[10] = { [ 0 ... 9 ] = -1.0 };
+  int ii,j;
   
     FILE  *datafile;
   
@@ -65,6 +65,12 @@ int main()
        //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3, 3);
        fixedFfermi_derivatives_v3(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3);
        printf("%.3e %.3e %.3e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,F, dF_deta, d2F_deta2, dF_dtheta, d2F_dtheta2, d2F_deta_dtheta, d3F_dtheta3, d3F_dtheta2_deta, d3F_dtheta_deta2, d3F_deta3);
+
+       Ffermi_value_derivatives(k, eta, theta,128.0*DBL_EPSILON, 4, results);
+       printf("%.3e %.3e %.3e ", k,eta,theta);
+       for(j=0;j<10;j++) printf("%.17e ", results[j]);
+       printf("\n");
+
        printf("%.3e %.3e %.3e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",
           k,eta,theta,     (F/fdREF-1.0)/DBL_EPSILON, 
                     (dF_deta/dFdeta-1.0)/DBL_EPSILON,  
