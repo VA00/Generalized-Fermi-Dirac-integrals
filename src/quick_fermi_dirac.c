@@ -17,11 +17,6 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 
 */
 
-inline double sigmoid(double z)
-{
-  //return 1.0/(1.0+exp(-z));
-  return 0.5*tanh(0.5*z)+0.5; //the fastest, clean (no conditionals)
-}
 
 void fixedFfermi_derivatives(const double k, const double eta, const double theta,
        const double h, double hMIN, double hMAX, 
@@ -111,12 +106,12 @@ void fixedFfermi_derivatives_v2(const double k, const double eta, const double t
     s = 1.0/denom;	
 	f      = 1.0/(1.0+factor)*exp(   (k+1.0) * (t - exp(-t))   )*g*dx;
     //A lot of optimalization possible below, blocked by if() construct
-    integral                         +=   f;
-	if(D_MAX>0) integral_deta        +=   f*factor*s; 
-    if(D_MAX>0) integral_dtheta      +=   f*0.25*x/g2;
-	if(D_MAX>1) integral_deta2       +=   f*factor*s*s*(factor-1.0); 
-	if(D_MAX>1) integral_dtheta2     +=  -f*0.25*x/g2*x/g2*0.25;
-	if(D_MAX>1) integral_deta_dtheta +=   f*0.25*x/g2*factor*s;
+    integral                              +=   f;
+	if(D_MAX>0) integral_deta             +=   f*factor*s; 
+	if(D_MAX>0) integral_dtheta           +=   f*0.25*x/g2;
+	if(D_MAX>1) integral_deta2            +=   f*factor*s*s*(factor-1.0); 
+	if(D_MAX>1) integral_dtheta2          +=  -f*0.25*x/g2*x/g2*0.25;
+	if(D_MAX>1) integral_deta_dtheta      +=   f*0.25*x/g2*factor*s;
 	if(D_MAX>2) integral_dtheta3          +=   (f*0.25*x/g2*x/g2*0.25)*0.75*x/g2;
 	if(D_MAX>2) integral_dtheta2_deta     +=   (-f*0.25*x/g2*x/g2*0.25)*factor*s;
 	if(D_MAX>2) integral_dtheta_deta2     +=   (f*factor*s*s*(factor-1.0))*x/4.0/g2;

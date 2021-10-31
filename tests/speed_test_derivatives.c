@@ -8,6 +8,7 @@ Run:
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
+#include "refVALS/20211030/refVALS_F_20211030.h"
 /*       subroutine dfermi(dk,eta,theta,fd,fdeta,fdtheta, &
                         fdeta2,fdtheta2,fdetadtheta) 
 DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
