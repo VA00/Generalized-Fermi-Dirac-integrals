@@ -48,6 +48,7 @@ double quickFfermi4(double,double,double);
 //double dfermi(double,double,double);
 
 //internal functions
+inline double sigmoid(double);
 double incomplete_half_fractional_gamma( double, double);
 double zeta1( double, int);
 double zeta2( double, int);
