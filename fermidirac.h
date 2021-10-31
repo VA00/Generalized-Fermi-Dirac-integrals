@@ -28,6 +28,9 @@ void fixedFfermi_derivatives_v3(const double, const double, const double,
 		   double *, double *, double *,
 		   double *, double *, double *, double *
 		   );
+void Ffermi_value_derivatives(const double, const double, const double,
+  const double , const int , double[10]);
+
 double fixedFfermi(const double, const double, const double,
 		   const double, double, double);
 float  fixedFfermif(const float, const float, const float,
@@ -92,3 +95,5 @@ double Ffermi_value(const double, const double, const double, const double, cons
 double integrandF_complete(const double, const double, const double);
 double integrandF(const double, const double, const double, const double);
 double integrandG(const double, const double, const double, const double);
+
+
