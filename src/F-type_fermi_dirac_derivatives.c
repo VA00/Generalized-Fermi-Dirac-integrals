@@ -171,3 +171,96 @@ void integrandF_derivatives_v2(const double t, const double k, const double eta,
   
   
 }
+
+
+
+
+
+void Ffermi_estimate_derivatives(double h, double last_result[10], double k, double eta, double theta, double new_result[10])
+{
+  
+  int step,i,j;
+  double sum_Left_old[10] ={ [ 0 ... 9 ] = 0.0 }, sum_Right_old[10]={ [ 0 ... 9 ] = 0.0 };
+  double sum_Left_new[10] ={ [ 0 ... 9 ] = 0.0 }, sum_Right_new[10]={ [ 0 ... 9 ] = 0.0 };
+  double old_result[10], integrand[10];
+  
+  
+  if(last_result[0]<0.0) /* Negative value means first iteration*/
+  {
+    step=1;
+    integrandF_derivatives_v2(0.0, k, eta, theta, integrand);
+    for(j=0;j<10;j++) old_result[j] = 2.0*h*integrand[j];
+  }
+  else
+  {
+    step=2;
+    for(j=0;j<10;j++) old_result[j] = last_result[j];//Is this necessary? old_result===last_result?
+  }
+  
+  /* integral for 0 < t < Infinity  */
+  
+  //sum_Right_old = 0.0;
+  //sum_Right_new = 0.0;
+  
+  
+  i=1;
+
+  do
+  {
+	for(j=0;j<10;j++) sum_Right_old[j] = sum_Right_new[j];
+    integrandF_derivatives_v2(h*i, k, eta, theta,integrand);
+    for(j=0;j<10;j++) sum_Right_new[j] = sum_Right_old[j] + integrand[j];
+    
+	i = i + step;
+  }
+  while  ( sum_Right_old[0]<sum_Right_new[0] ); //floating point fixed-point method on first vector component!
+
+  /* integral for -Infinity < t <0  */
+  
+  //sum_Left_old = 0.0;
+  //sum_Left_new = 0.0;
+  
+  
+  i=-1;
+  do
+  {
+	for(j=0;j<10;j++) sum_Left_old[j] = sum_Left_new[j];
+    integrandF_derivatives_v2(h*i, k, eta, theta,integrand);
+    for(j=0;j<10;j++) sum_Left_new[j] = sum_Left_old[j] + integrand[j];
+    i = i - step;
+  }
+  while  (sum_Left_old[0]<sum_Left_new[0]);
+  
+  
+    for(j=0;j<10;j++) new_result[j] = h*(sum_Left_new[j]  + sum_Right_new[j]) + 0.5*old_result[j];
+
+
+}
+
+
+
+void Ffermi_value_derivatives(const double k, const double eta, const double theta,
+  const double precision, const int recursion_limit, double result[10])
+{
+  
+  double old[10]={ [ 0 ... 9 ] = -1.0 }; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart
+  double new[10]={ [ 0 ... 9 ] =  0.0 };
+  double h=0.5;
+  int j;
+  
+  //if(k<=-1.0) return nan("NaN"); /* not converging for k <= -1 */
+
+  Ffermi_estimate_derivatives(h, old, k, eta, theta, new);
+
+  for(j=0;j<10;j++) old[j] = 0.0;//Is this necessary? 
+  
+  while( fabs(old[0]-new[0])>precision*fabs(new[0]) && h>pow(2.0,-recursion_limit))
+  {
+    for(j=0;j<10;j++) old[j]=new[j];
+    h=0.5*h;
+    Ffermi_estimate_derivatives(h, old, k, eta, theta, new);
+  }
+
+  for(j=0;j<10;j++) result[j]=new[j];
+    
+}
