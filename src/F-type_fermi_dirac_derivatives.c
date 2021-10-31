@@ -45,7 +45,9 @@ slow computations.
 
 		SECTION FOR RELATIVISTIC Fermi-Dirac integrals (F-function)
         INCLUDING DERIVATIVES UP TO THIRD ORDER
-
+ 
+        UNFORTUNATELY, vector length is 10, neither AVX or AVX512 aligned. 
+        Are all of the 3-rd order derivatives required?
 
 */
 
@@ -243,7 +245,7 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
   const double precision, const int recursion_limit, double result[10])
 {
   
-  double old[10]={ [ 0 ... 9 ] = -1.0 }; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart
+  double old[10]={ [ 0 ... 9 ] = -1.0 }; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart at the first call
   double new[10]={ [ 0 ... 9 ] =  0.0 };
   double h=0.5;
   int j;
@@ -252,7 +254,10 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 
   Ffermi_estimate_derivatives(h, old, k, eta, theta, new);
 
-  for(j=0;j<10;j++) old[j] = 0.0;//Is this necessary? 
+  for(j=0;j<10;j++) old[j] = 0.0;/*Is this necessary? Two lines below we reset old to new which is zero anyway. 
+         Except precision goal is achieved at first run (in theory possible, if one modify code and set e.g h=0.125 or less what MIGHT may have sense in future
+   optimization ) */ 
+
   
   while( fabs(old[0]-new[0])>precision*fabs(new[0]) && h>pow(2.0,-recursion_limit))
   {
