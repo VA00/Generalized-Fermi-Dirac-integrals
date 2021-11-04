@@ -312,6 +312,22 @@ double sommerfeld_leading_term(double k, double x)
 	}
 }
 
+
+void sommerfeld_leading_term_derivatives(double k, double z, double result[4])
+{
+	double s = sqrt(1.0-z);
+
+	result[0] = sommerfeld_leading_term(k,z);
+	//The first d/dz derivative of the 2F1(-0.5, 1+k,2+,z) hypergeometric function
+    result[1] = (1.0+k)/z*(s + result[0]);
+    //The second d2/dz2 derivative
+	result[2] = (s + k*s + result[1]*(4.0 + k*(2.0 - 2.0*z) - 4.0*z))/(z*(-2.0 + 2.0*z));
+    ////The third d3/dz3 derivative
+	result[3] = (-s - k*s + result[2]*(-12.0 + (24.0 - 12.0*z)*z + k*(-4.0 + (8.0 - 4.0*z)*z)))/(z*(4.0 + z*(-8.0 + 4.0*z)));
+	
+
+}
+
 /*
 double sommerfeld_leading_term(double k, double z)
 {
