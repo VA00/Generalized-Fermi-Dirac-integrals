@@ -93,7 +93,7 @@ int main()
   
   
 
-  
+  fclose(datafile);
   return 0;
 
 }

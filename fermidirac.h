@@ -69,6 +69,7 @@ double U_half_frac(double, double);
 double BesselK_dbl_exp(const double, const double,  const double, const int);
 double BesselK(const double, const double);
 double sommerfeld_leading_term(double, double);
+void   sommerfeld_leading_term_derivatives(double, double, double[4]);
 double sommerfeld_leading_term_int(double, double);
 double recursion_half_frac_k(double, double);
 double recursion_int_k(double, double);
