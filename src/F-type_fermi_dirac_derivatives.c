@@ -269,3 +269,48 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
   for(j=0;j<10;j++) result[j]=new[j];
     
 }
+
+
+/* TODO: error control not implemented ! */
+/* TODO: only leading term implemented ! */
+void Ffermi_sommerfeld_derivatives(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[10])
+{
+	double z = -0.5*eta*theta,eta_k=pow(eta,k);
+    double S[4];
+	/* Tabulated DirichletEta values 
+	double etaTBL[12] = {0.50000000000000000000000000000000, \
+                         0.69314718055994530941723212145818, \
+                         0.82246703342411321823620758332301, \
+                         0.90154267736969571404980362113359, \
+                         0.94703282949724591757650323447352, \
+                         0.97211977044690930593565514355347, \
+                         0.98555109129743510409843924448495, \
+                         0.99259381992283028267042571313339, \
+                         0.99623300185264789922728926008280, \
+                         0.99809429754160533076778303185260, \
+                         0.99903950759827156563922184569934, \
+                         0.99951714349806075414409417482869};
+	*/
+    /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
+    sommerfeld_leading_term_derivatives(k,z,S);
+
+
+	result[0] =  eta_k*eta/(1.0+k)*S[0];
+    result[1] =  eta_k*S[0]-eta_k*eta*theta*S[1]/(2.0+2.0*k); 
+    result[2] =  eta_k/eta*k*S[0]-eta_k*theta*S[1]+eta_k*eta*theta*theta*S[2]/(4.0+4.0*k);
+    result[3] = -eta_k*eta*eta*S[1]/(2.0+2.0*k);
+    result[4] =  eta_k*eta*eta*eta*S[2]/(4.0+4.0*k);
+    result[5] =  eta_k*eta*(eta*theta*S[2]-(4.0+2.0*k)*S[1])/(4.0+4.0*k);
+    result[6] = -eta_k*eta*eta*eta*eta*S[3]/(8.0+8.0*k);
+    result[7] =  eta_k*eta*eta*(2.0*(k+3.0)*S[2] - eta*theta*S[3])/8.0/(1.0+k);
+    //result[7] =  eta_k*eta*eta/16.0/pow(1.0-z,1.5);
+    result[8] = -eta_k*(4.0*(2.0+3.0*k+k*k)*S[1]+eta*theta*((-8.0-4.0*k)*S[2]+eta*theta*S[3]))/(8.0+8.0*k);
+    result[9] =  k*(k-1.0)*eta_k/(eta*eta)*S[0]
+                    -1.5*k*eta_k/eta*theta*S[1]
+                   +0.75*eta_k*theta*theta*S[2]
+  -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
+
+
+
+
+}
