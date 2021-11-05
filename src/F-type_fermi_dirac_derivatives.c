@@ -297,10 +297,12 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
 	result[0] =  eta_k*eta/(1.0+k)*S[0];
     result[1] =  eta_k*S[0]-eta_k*eta*theta*S[1]/(2.0+2.0*k); 
+    //result[1] =  eta_k*sqrt(1.0-z);
     result[2] =  eta_k/eta*k*S[0]-eta_k*theta*S[1]+eta_k*eta*theta*theta*S[2]/(4.0+4.0*k);
     result[3] = -eta_k*eta*eta*S[1]/(2.0+2.0*k);
     result[4] =  eta_k*eta*eta*eta*S[2]/(4.0+4.0*k);
     result[5] =  eta_k*eta*(eta*theta*S[2]-(4.0+2.0*k)*S[1])/(4.0+4.0*k);
+    //result[5] =  eta_k*eta*0.25/sqrt(1.0-z);
     result[6] = -eta_k*eta*eta*eta*eta*S[3]/(8.0+8.0*k);
     result[7] =  eta_k*eta*eta*(2.0*(k+3.0)*S[2] - eta*theta*S[3])/8.0/(1.0+k);
     //result[7] =  eta_k*eta*eta/16.0/pow(1.0-z,1.5);
