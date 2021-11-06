@@ -276,6 +276,7 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 void Ffermi_sommerfeld_derivatives(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[10])
 {
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
+    double sqrt_1z = sqrt(1.0-z);
     double S[4];
 	/* Tabulated DirichletEta values 
 	double etaTBL[12] = {0.50000000000000000000000000000000, \
@@ -294,15 +295,15 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
     /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
     sommerfeld_leading_term_derivatives(k,z,S);
 
-
+    /* Leading term */
 	result[0] =  eta_k*eta/(1.0+k)*S[0];
     result[1] =  eta_k*S[0]-eta_k*eta*theta*S[1]/(2.0+2.0*k); 
-    //result[1] =  eta_k*sqrt(1.0-z);
+    //result[1] =  eta_k*sqrt_1z;
     result[2] =  eta_k/eta*k*S[0]-eta_k*theta*S[1]+eta_k*eta*theta*theta*S[2]/(4.0+4.0*k);
     result[3] = -eta_k*eta*eta*S[1]/(2.0+2.0*k);
     result[4] =  eta_k*eta*eta*eta*S[2]/(4.0+4.0*k);
     result[5] =  eta_k*eta*(eta*theta*S[2]-(4.0+2.0*k)*S[1])/(4.0+4.0*k);
-    //result[5] =  eta_k*eta*0.25/sqrt(1.0-z);
+    //result[5] =  eta_k*eta*0.25/sqrt_1z;
     result[6] = -eta_k*eta*eta*eta*eta*S[3]/(8.0+8.0*k);
     result[7] =  eta_k*eta*eta*(2.0*(k+3.0)*S[2] - eta*theta*S[3])/8.0/(1.0+k);
     //result[7] =  eta_k*eta*eta/16.0/pow(1.0-z,1.5);
@@ -312,7 +313,17 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
                    +0.75*eta_k*theta*theta*S[2]
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
 
+    /* First expansion term (usually enough) */
 
-
+    result[0] = result[0] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k/eta+theta/4.0/(1.0-z));
+    result[1] = result[1] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(k-1.0)/eta/eta-theta*theta/16.0/(1.0-z)/(1.0-z)+0.5*k*theta/eta/(1.0-z));
+    result[2] = result[2] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(2.0-3.0*k+k*k)/eta/eta/eta + 3.0*theta*theta*theta/64.0/(1.0-z)/(1.0-z)/(1.0-z) - 3.0*k*theta*theta/16.0/eta/(1.0-z)/(1.0-z) + 3.0*k*(k-1.0)*theta/4.0/eta/eta/(1.0-z));
+    result[3] = result[3] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(z/8.0/(1.0-z)/(1.0-z)+(1.0+k)/4.0/(1.0-z));
+    result[4] = result[4] + M_PI*M_PI/6.0*eta_k*sqrt_1z*z/8.0/theta/(1.0-z)/(1.0-z)*(2.0+k+1.5*z/(1.0-z));
+    result[5] = result[5] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(-3.0*z*theta/32.0/(1.0-z)/(1.0-z)/(1.0-z)-theta*(1.0+k)/8.0/(1.0-z)/(1.0-z)+0.25*k*(1.0+k)/eta/(1.0-z));
+    result[6] = result[6] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(15.0*z*eta*eta/128.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z)+3.0*eta*eta*(k+3.0)/64.0/(1.0-z)/(1.0-z)/(1.0-z));
+    result[7] = result[7] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)/(1.0-z)*(-(k*k+3.0*k+2.0)/16.0-15.0*z*z/64.0/(1.0-z)/(1.0-z)-3.0*(2.0+k)*z/(1.0-z));
+    result[8] = result[8] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)*theta*theta*(k*(k*k-1.0)/16.0/z/z + 15.0*z/(1.0-z)/(1.0-z)/(1.0-z) + 3.0*k*(1.0+k)/32.0/(1.0-z)/z + 9.0/64.0*(1.0+k)/(1.0-z)/(1.0-z));
+    result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
 
 }
