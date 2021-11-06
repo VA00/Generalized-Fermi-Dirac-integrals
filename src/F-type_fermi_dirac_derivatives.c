@@ -272,7 +272,8 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 
 
 /* TODO: error control not implemented ! */
-/* TODO: only leading term implemented ! */
+/* TODO: only leading and first term implemented ! */
+/* FIXME: 7,8 derivatives possibly mistyped, A.O. 06.11.2021 */
 void Ffermi_sommerfeld_derivatives(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[10])
 {
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
