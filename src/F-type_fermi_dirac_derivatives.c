@@ -315,7 +315,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
 
     /* First expansion term (usually enough) */
-
+    /* Terrible code, need rewrite, e.g: 1-z = z11; z12=z11*z11, z13=z11*z12, k2=k*k, k3=k*k*k etc */
     result[0] = result[0] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k/eta+theta/4.0/(1.0-z));
     result[1] = result[1] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(k-1.0)/eta/eta-theta*theta/16.0/(1.0-z)/(1.0-z)+0.5*k*theta/eta/(1.0-z));
     result[2] = result[2] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(2.0-3.0*k+k*k)/eta/eta/eta + 3.0*theta*theta*theta/64.0/(1.0-z)/(1.0-z)/(1.0-z) - 3.0*k*theta*theta/16.0/eta/(1.0-z)/(1.0-z) + 3.0*k*(k-1.0)*theta/4.0/eta/eta/(1.0-z));
@@ -323,8 +323,10 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
     result[4] = result[4] + M_PI*M_PI/6.0*eta_k*sqrt_1z*z/8.0/theta/(1.0-z)/(1.0-z)*(2.0+k+1.5*z/(1.0-z));
     result[5] = result[5] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(-3.0*z*theta/32.0/(1.0-z)/(1.0-z)/(1.0-z)-theta*(1.0+k)/8.0/(1.0-z)/(1.0-z)+0.25*k*(1.0+k)/eta/(1.0-z));
     result[6] = result[6] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(15.0*z*eta*eta/128.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z)+3.0*eta*eta*(k+3.0)/64.0/(1.0-z)/(1.0-z)/(1.0-z));
-    result[7] = result[7] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)/(1.0-z)*(-(k*k+3.0*k+2.0)/16.0-15.0*z*z/64.0/(1.0-z)/(1.0-z)-3.0*(2.0+k)*z/(1.0-z));
-    result[8] = result[8] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)*theta*theta*(k*(k*k-1.0)/16.0/z/z + 15.0*z/(1.0-z)/(1.0-z)/(1.0-z) + 3.0*k*(1.0+k)/32.0/(1.0-z)/z + 9.0/64.0*(1.0+k)/(1.0-z)/(1.0-z));
+    result[7] = result[7] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)/(1.0-z)*(    -0.125 - (3*k)/(16.) + k*k/(16.) - (3*z)/(8.*(1 - z)) +  (3*k*z)/(16.*(1 - z)) - (15*z*z)/(64.*(1 - z)*(1-z)));
+    result[8] = result[8] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(   9/(64.*(1 - z)*(1 - z)*(1 - z)) + (9*k)/(64.*(1 - z)*(1 - z)*(1 - z)) +  k/(16.*(1 - z)*z*(1 - z)) + k*k*k/(16.*(1 - z)*z*(1 - z)) + 
+     -  (3*k)/(32.*(1 - z)*(1 - z)*z) + (3*k*k)/(32.*(1 - z)*(1 - z)*z) + 
+     -  (15*z)/(128.*(1 - z)*(1 - z)*(1 - z)*(1 - z)));
     result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
 
 }
