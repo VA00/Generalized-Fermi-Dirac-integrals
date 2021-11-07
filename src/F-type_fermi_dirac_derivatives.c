@@ -273,13 +273,13 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 
 /* TODO: error control not implemented ! */
 /* TODO: only leading and first term implemented ! */
-/* FIXME: 7,8 derivatives possibly mistyped, A.O. 06.11.2021 */
+/* WARNING: untested leading and first term! */
 void Ffermi_sommerfeld_derivatives(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[10])
 {
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
     double sqrt_1z = sqrt(1.0-z);
     double S[4];
-	/* Tabulated DirichletEta values 
+	/* Tabulated DirichletEta values */
 	double etaTBL[12] = {0.50000000000000000000000000000000, \
                          0.69314718055994530941723212145818, \
                          0.82246703342411321823620758332301, \
@@ -292,7 +292,8 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
                          0.99809429754160533076778303185260, \
                          0.99903950759827156563922184569934, \
                          0.99951714349806075414409417482869};
-	*/
+	int i,j;
+    double derivative;
     /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
     sommerfeld_leading_term_derivatives(k,z,S);
 
@@ -332,4 +333,19 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
     result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
 
 	if(SERIES_TERMS_MAX==1) return;
+
+	for(i=2;i<=SERIES_TERMS_MAX;i++)
+	{
+	  derivative = 0.0;
+	  for(j=0;j<=2*i-1;j++)
+		derivative = derivative + binom(2*i-1,j)*tgamma(1.5)*tgamma(1.0+k)/tgamma(1.5-j)/tgamma(2.0+k-2.0*i+j)
+	                             *pow(0.5*theta,j)*pow(1.0+0.5*theta*eta,0.5-j)*pow(eta,1.0-2.0*i+j+k);
+	
+	  if(i>5) //i is beyond tabulated
+	   result[0] = result[0] + 2.0*derivative*dirichlet_eta(2.0*i,DBL_EPSILON,64);
+      else  //use tabulated values
+	   result[0] = result[0] + 2.0*derivative*etaTBL[2*i];
+	  
+	}  
+
 }
