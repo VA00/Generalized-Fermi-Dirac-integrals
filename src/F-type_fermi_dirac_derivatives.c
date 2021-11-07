@@ -314,6 +314,8 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
                    +0.75*eta_k*theta*theta*S[2]
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
 
+	if(SERIES_TERMS_MAX==0) return;
+
     /* First expansion term (usually enough) */
     /* Terrible code, need rewrite, e.g: 1-z = z11; z12=z11*z11, z13=z11*z12, k2=k*k, k3=k*k*k etc */
     result[0] = result[0] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k/eta+theta/4.0/(1.0-z));
@@ -329,4 +331,5 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
      -  (15*z)/(128.*(1 - z)*(1 - z)*(1 - z)*(1 - z)));
     result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
 
+	if(SERIES_TERMS_MAX==1) return;
 }
