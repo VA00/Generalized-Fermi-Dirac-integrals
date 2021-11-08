@@ -76,6 +76,7 @@ double recursion_int_k(double, double);
 double Ffermi_value         (double, double, double, double, int);
 double Ffermi_series_neg    (double, double, double, double, int);
 double Ffermi_sommerfeld    (double, double, double, double, int);
+void   Ffermi_sommerfeld_derivatives(const double, const double, const double, const double, const int, double[10]);
 double Ffermi_series_sqrt_a (double, double, double, double, int);
 double Ffermi_series_sqrt_b (double, double, double, double, int);
 
