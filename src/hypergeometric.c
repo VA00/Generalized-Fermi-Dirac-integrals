@@ -11,13 +11,25 @@ A. Odrzywolek, AOdrzywolek
 #define DEBUG 0
 #include "factorial.h" //pre-calculated factorials
 
-
+// Pochhammer[a,n]
 double pochhammer(double a, int n)
 {
    double prod=1.0;
    int j;
    
    for(j=0;j<n;j++) prod=prod*(a+j);
+   
+   return prod;
+	
+}
+
+// FactorialPower[a,n] == Pochhammer[a - n + 1, n]
+double factorial_power(double a, int n)
+{
+   double prod=1.0;
+   int j;
+   
+   for(j=0;j<n;j++) prod=prod*(a-j);
    
    return prod;
 	
