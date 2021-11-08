@@ -52,6 +52,8 @@ double quickFfermi4(double,double,double);
 
 //internal functions
 double sigmoid(double);
+double pochhammer(double, int);
+double factorial_power(double, int);
 double incomplete_half_fractional_gamma( double, double);
 double zeta1( double, int);
 double zeta2( double, int);
