@@ -25,6 +25,24 @@ slow computations.
 #define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
 
 
+/* Linear recurrence required to compute general mixed partial derivatives D[\[Eta]^k Sqrt[1 + \[Eta] \[Theta]/2], {\[Theta], n}, {\[Eta], m}]*/
+double r(int i, double k, double z, int n, int m)
+{
+  double c1,c2;
+
+  if(i==0) return 0.0;
+  if(i==1) return pow(1.0+z,0.5-n)*binom(k+n,m);
+
+  c1 = -(((-2 + i - m)*(-5 + 2*i + 2*n)*z)/(2*(-1 + i)*(-1 + i + k - m + n)*(1 + z))) ;
+  c2 = ((2 + 2*m - 2*n + 12*z + 7*m*z - 6*n*z - 2*m*n*z - 2*k*(1 + z) + i*i*(2 + 4*z) + 
+    i*(-4 - 2*m + 2*n - 13*z - 4*m*z + 4*n*z + 2*k*(1 + z))))/(2*(-1 + i)*(-1 + i + k - m + n)*(1 + z));
+
+  return c1*r(i-2, k, z, n, m) + c2*r(i-1, k, z, n, m);
+              
+   
+  
+}
+
 /* Functions below are integrated with so-called DoubleExponential or Tanh-Sinh quadrature.
  * 
  * Some references:
@@ -271,6 +289,22 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 }
 
 
+/* After some time of brain cooking:
+
+i-th Sommerfeld term for partial derivative D^n/Dtheta^n D^m/Deta^m is:
+
+2 DirichletEta[2 i] Derivative[i][f][\[Eta]]], {\[Theta], n}, {\[Eta], m}]
+
+EQUIVALENT formula suitable for C/Fortran coding :
+
+2 DirichletEta[2 i] 2^-n \[Eta]^( k - m - i + n) (m + i)! FactorialPower[1/2, n] r[m + i + 1,  k, \[Eta] \[Theta]/2, n, m + i]
+
+NOTE: formula for eta derivatives, apart from 2 DirichletEta[2i] term, is simply shifted formula for i-th
+term. Therefore, once we have computed 1-st expansion for third derivative, we already have
+3-rd order expansion for first derivative !
+
+*/
+
 /* TODO: error control not implemented ! */
 /* TODO: only leading and first term implemented ! */
 /* WARNING: untested leading and first term! */
@@ -278,7 +312,9 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 {
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
     double sqrt_1z = sqrt(1.0-z);
-    double S[4];
+    double S[4], derivatives[4][4];
+    int n,m; // order of partial derivatives with respect to theta and eta, respectively
+    #include "factorial.h"
 	/* Tabulated DirichletEta values */
 	double etaTBL[12] = {0.50000000000000000000000000000000, \
                          0.69314718055994530941723212145818, \
@@ -316,6 +352,35 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
 
 	if(SERIES_TERMS_MAX==0) return;
+
+    //Compute partial derivatives at i-th Sommerfeld expansion order
+    i=1;
+    for(n=0;n<=3;n++)
+      for(m=0;m<=3;m++)
+        {
+          if(m+n>3) continue; //we do not need higher order derivatives for now
+          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )*factorial[m+i]*factorial_power(0.5, n)*r(m+i+1, k, 0.5*eta*theta, n, m+i);
+        }
+
+    
+
+    result[0] = result[0] + 2.0*etaTBL[1]*derivatives[0][0];
+    result[1] = result[1] + 2.0*etaTBL[1]*derivatives[0][1];
+    result[2] = result[2] + 2.0*etaTBL[1]*derivatives[0][2];
+    result[3] = result[3] + 2.0*etaTBL[1]*derivatives[1][0];
+    result[4] = result[4] + 2.0*etaTBL[1]*derivatives[2][0];
+    result[5] = result[5] + 2.0*etaTBL[1]*derivatives[1][1];
+    result[6] = result[6] + 2.0*etaTBL[1]*derivatives[3][0];
+    result[7] = result[7] + 2.0*etaTBL[1]*derivatives[2][1];
+    result[8] = result[8] + 2.0*etaTBL[1]*derivatives[1][2];
+    result[9] = result[9] + 2.0*etaTBL[1]*derivatives[0][3];
+
+
+
+
+	if(SERIES_TERMS_MAX==1) return;
+    /* CODE below to be discarded, above version is elegant and clean */
+
 
     /* First expansion term (usually enough) */
     /* Terrible code, need rewrite, e.g: 1-z = z11; z12=z11*z11, z13=z11*z12, k2=k*k, k3=k*k*k etc CHECK if results are multiplied by 2
