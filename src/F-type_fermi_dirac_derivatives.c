@@ -364,16 +364,16 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
     
 
-    result[0] = result[0] + 2.0*etaTBL[1]*derivatives[0][0];
-    result[1] = result[1] + 2.0*etaTBL[1]*derivatives[0][1];
-    result[2] = result[2] + 2.0*etaTBL[1]*derivatives[0][2];
-    result[3] = result[3] + 2.0*etaTBL[1]*derivatives[1][0];
-    result[4] = result[4] + 2.0*etaTBL[1]*derivatives[2][0];
-    result[5] = result[5] + 2.0*etaTBL[1]*derivatives[1][1];
-    result[6] = result[6] + 2.0*etaTBL[1]*derivatives[3][0];
-    result[7] = result[7] + 2.0*etaTBL[1]*derivatives[2][1];
-    result[8] = result[8] + 2.0*etaTBL[1]*derivatives[1][2];
-    result[9] = result[9] + 2.0*etaTBL[1]*derivatives[0][3];
+    result[0] = result[0] + 2.0*etaTBL[2*i]*derivatives[0][0];
+    result[1] = result[1] + 2.0*etaTBL[2*i]*derivatives[0][1];
+    result[2] = result[2] + 2.0*etaTBL[2*i]*derivatives[0][2];
+    result[3] = result[3] + 2.0*etaTBL[2*i]*derivatives[1][0];
+    result[4] = result[4] + 2.0*etaTBL[2*i]*derivatives[2][0];
+    result[5] = result[5] + 2.0*etaTBL[2*i]*derivatives[1][1];
+    result[6] = result[6] + 2.0*etaTBL[2*i]*derivatives[3][0];
+    result[7] = result[7] + 2.0*etaTBL[2*i]*derivatives[2][1];
+    result[8] = result[8] + 2.0*etaTBL[2*i]*derivatives[1][2];
+    result[9] = result[9] + 2.0*etaTBL[2*i]*derivatives[0][3];
 
 
 
@@ -398,27 +398,6 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
      -  (15*z)/(128.*(1 - z)*(1 - z)*(1 - z)*(1 - z)));
     result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
 
-	if(SERIES_TERMS_MAX==1) return;
-    if(SERIES_TERMS_MAX>1) exit(-1); //assertion preventing call with more than 1 term
 
-    /* BELOW IS A NONSENSE CODE, TODO ASAP !!!!! */
-	for(i=2;i<=SERIES_TERMS_MAX;i++)
-	{
-	  derivative = 0.0; // F
-	  for(j=0;j<=2*i-1;j++)
-		derivative = derivative + binom(2*i-1,j)*tgamma(1.5)*tgamma(1.0+k)/tgamma(1.5-j)/tgamma(2.0+k-2.0*i+j)*pow(0.5*theta,j)*pow(1.0+0.5*theta*eta,0.5-j)*pow(eta,1.0-2.0*i+j+k);
-      result[0] = result[0] + 2.0*derivative*dirichlet_eta(2.0*i,DBL_EPSILON,64);
-
-	  derivative = 0.0; //dF/deta
-	  for(j=0;j<=2*i;j++)
-		derivative = derivative + binom(2*i-1,j)*tgamma(1.5)*tgamma(1.0+k)/tgamma(1.5-j)/tgamma(2.0+k-2.0*i+j)*pow(0.5*theta,j)*pow(1.0+0.5*theta*eta,0.5-j)*pow(eta,1.0-2.0*i+j+k);
-      result[1] = result[1] + 2.0*derivative*dirichlet_eta(2.0*i,DBL_EPSILON,64);
-	  
-	  derivative = 0.0; //d2F/deta2
-	  for(j=0;j<=2*i;j++)
-		derivative = derivative + binom(2*i-1,j)*tgamma(1.5)*tgamma(1.0+k)/tgamma(1.5-j)/tgamma(2.0+k-2.0*i+j)*pow(0.5*theta,j)*pow(1.0+0.5*theta*eta,0.5-j)*pow(eta,1.0-2.0*i+j+k);
-      result[1] = result[1] + 2.0*derivative*dirichlet_eta(2.0*i,DBL_EPSILON,64);
-
-	}  
 
 }
