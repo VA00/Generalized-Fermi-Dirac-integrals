@@ -32,16 +32,66 @@ double r(int i, double k, double z, int n, int m)
 
   if(i==0) return 0.0;
   if(i==1) return pow(1.0+z,0.5-n)*binom(k+n,m);
+     
+  
 
-  c1 = -(((-2 + i - m)*(-5 + 2*i + 2*n)*z)/(2*(-1 + i)*(-1 + i + k - m + n)*(1 + z))) ;
-  c2 = ((2 + 2*m - 2*n + 12*z + 7*m*z - 6*n*z - 2*m*n*z - 2*k*(1 + z) + i*i*(2 + 4*z) + 
-    i*(-4 - 2*m + 2*n - 13*z - 4*m*z + 4*n*z + 2*k*(1 + z))))/(2*(-1 + i)*(-1 + i + k - m + n)*(1 + z));
+  //c1 = -(((-2. + i - m)*(-5. + 2.*i + 2.*n)*z)/(2.*(-1. + i)*(-1. + i + k - m + n)*(1. + z))) ;
+  
+  //c2 = ((2. + 2.*m - 2.*n + 12.*z + 7.*m*z - 6.*n*z - 2.*m*n*z - 2.*k*(1. + z) + i*i*(2. + 4.*z) + 
+    //i*(-4. - 2.*m + 2.*n - 13.*z - 4.*m*z + 4.*n*z + 2.*k*(1. + z))))/(2.*(-1. + i)*(-1. + i + k - m + n)*(1. + z));
 
-  return c1*r(i-2, k, z, n, m) + c2*r(i-1, k, z, n, m);
+
+   c1 = (2 + 2*m - 2*n + 12*z + 7*m*z - 6*n*z - 2*m*n*z - 2*k*(1 + z) + i*i*(2 + 4*z) + i*(-4 - 2*m + 2*n - 13*z - 4*m*z + 4*n*z + 2*k*(1 + z)))/
+   (2.*(-1 + i)*(-1 + i + k - m + n)*(1 + z)); 
+
+   if(i==2) return c1*r(1,k, z, n, m); 
+
+   c2 = -0.5*((-2 + i - m)*(-5 + 2*i + 2*n)*z)/((-1 + i)*(-1 + i + k - m + n)*(1 + z));
+  
+
+   printf("DBG1 c1 c2 :\ti=%d\tn=%d\tm=%d\t%lf %lf\n", i, n, m,  c1,c2);
+
+  return c2*r(i-2, k, z, n, m) + c1*r(i-1, k, z, n, m);
               
    
   
 }
+
+
+/* I give up for now. (-1 + i + k - m + n) cause division by zero if k is an integer. It cancel,
+e.g  for i=3, n=0, m=2 we get k(k-1)(k-2) from factorial_power divided by k,
+k(k-1)(k-2)/k = (k-1)(k-2) */
+double r2(int i, double k, double z, int n, int m)
+{
+  double c1,c2;
+
+  if(i==0) return 0.0;
+  if(i==1) return pow(1.0+z,0.5-n)*factorial_power(k+n,m);
+     
+  
+
+  //c1 = -(((-2. + i - m)*(-5. + 2.*i + 2.*n)*z)/(2.*(-1. + i)*(-1. + i + k - m + n)*(1. + z))) ;
+  
+  //c2 = ((2. + 2.*m - 2.*n + 12.*z + 7.*m*z - 6.*n*z - 2.*m*n*z - 2.*k*(1. + z) + i*i*(2. + 4.*z) + 
+    //i*(-4. - 2.*m + 2.*n - 13.*z - 4.*m*z + 4.*n*z + 2.*k*(1. + z))))/(2.*(-1. + i)*(-1. + i + k - m + n)*(1. + z));
+
+
+   c1 = (2 + 2*m - 2*n + 12*z + 7*m*z - 6*n*z - 2*m*n*z - 2*k*(1 + z) + i*i*(2 + 4*z) + i*(-4 - 2*m + 2*n - 13*z - 4*m*z + 4*n*z + 2*k*(1 + z)))/
+   (2.*(-1 + i)*(-1 + i + k - m + n)*(1 + z)); 
+
+   if(i==2) return c1*r(1,k, z, n, m); 
+
+   c2 = -0.5*((-2 + i - m)*(-5 + 2*i + 2*n)*z)/((-1 + i)*(-1 + i + k - m + n)*(1 + z));
+  
+
+   printf("DBG2 c1 c2 :\ti=%d\tn=%d\tm=%d\t%lf %lf\n", i, n, m,  c1,c2);
+
+  return c2*r(i-2, k, z, n, m) + c1*r(i-1, k, z, n, m);
+              
+   
+  
+}
+
 
 /* Functions below are integrated with so-called DoubleExponential or Tanh-Sinh quadrature.
  * 
@@ -359,7 +409,10 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
       for(m=0;m<=3;m++)
         {
           if(m+n>3) continue; //we do not need higher order derivatives for now
-          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )*factorial[m+i]*factorial_power(0.5, n)*r(m+i+1, k, 0.5*eta*theta, n, m+i);
+          printf("FROM nm LOOP: %d %d\n", n,m);
+          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )*factorial[m+i]*factorial_power(0.5, n) *r(m+i+1, k, 0.5*eta*theta, n, m+i);
+          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )               *factorial_power(0.5, n)*r2(m+i+1, k, 0.5*eta*theta, n, m+i);
+
         }
 
     
