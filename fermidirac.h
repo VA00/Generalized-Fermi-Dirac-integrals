@@ -58,7 +58,7 @@ double incomplete_half_fractional_gamma( double, double);
 double zeta1( double, int);
 double zeta2( double, int);
 double zeta3( double, double, int);
-double binom(int, int);
+double binom(double, int);
 double dirichlet_eta(double, double, int);
 double hyp1f1(double, double, double);
 double hyp2f1(double, double, double, double);

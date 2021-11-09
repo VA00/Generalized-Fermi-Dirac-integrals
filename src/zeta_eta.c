@@ -10,7 +10,7 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl, 01-06-2020
 #include <float.h>
 
 /* Binomial coefficient Binomial[n,k] */
-double binom(int n, int k)
+double binom(double n, int k)
 {
 	double prod=1.0;
 	int i;
