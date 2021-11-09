@@ -51,6 +51,8 @@ double quickFfermi4(double,double,double);
 //double dfermi(double,double,double);
 
 //internal functions
+double r(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
+double r2(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double sigmoid(double);
 double pochhammer(double, int);
 double factorial_power(double, int);
