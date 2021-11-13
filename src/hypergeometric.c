@@ -11,6 +11,7 @@ A. Odrzywolek, AOdrzywolek
 #define DEBUG 0
 #include "factorial.h" //pre-calculated factorials
 
+//FIXME - general formula for n<-3 and n>64 missing
 double fac2(int n)
 {
 
