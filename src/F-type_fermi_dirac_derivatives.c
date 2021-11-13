@@ -57,7 +57,7 @@ double r(int i, double k, double z, int n, int m)
   
 }
 
-
+/* OBSOLETE: new explicit formula for derivatives found
 /* I give up for now. (-1 + i + k - m + n) cause division by zero if k is an integer. It cancel,
 e.g  for i=3, n=0, m=2 we get k(k-1)(k-2) from factorial_power divided by k,
 k(k-1)(k-2)/k = (k-1)(k-2) */
@@ -355,6 +355,53 @@ term. Therefore, once we have computed 1-st expansion for third derivative, we a
 
 */
 
+
+/* Formula below computes D[eta^k Sqrt[1+eta*theta/2],{eta,m},{theta,n}] */
+void sommerfeld_derivatives(const double k, const double eta, const double theta, double D[4][4])
+{
+    #include "factorial.h"
+    double sign;
+    double eta_k;
+    double z1 = 1.0 + 0.5*eta*theta;
+    double sum=0.0;
+    int i,m,n;
+
+//FIXME: below is very unoptimized code
+    for(m=0;m<=3;m++)
+     for(n=0;n<=3;n++)
+      {
+       sign = (n%2) ? 1.0 : -1.0; // (-1)^(n+1);
+       eta_k = pow(eta,k - m + n);
+       sum=0.0;
+       for(i=0;i<=m;i++)
+         sum = sum + binom(m,i)*factorial2[2*n + 2*m - 3 - 2*i]*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
+       
+       D[m][n] = sign*eta_k*sum;
+      }
+
+
+}
+
+/* Formula below computes D[eta^k Sqrt[1+eta*theta/2],{eta,m},{theta,n}] */
+double sommerfeld_derivatives_m_n(const double k, const double eta, const double theta, int m, int n)
+{
+    #include "factorial.h"
+    double sign;
+    double eta_k;
+    double z1 = 1.0 + 0.5*eta*theta;
+    double sum=0.0;
+    int i;
+
+       sign = (n%2) ? 1.0 : -1.0; // (-1)^(n+1);
+       eta_k = pow(eta,k - m + n);
+       for(i=0;i<=m;i++)
+         sum = sum + binom(m,i)*factorial2[2*n + 2*m - 3 - 2*i]*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
+       
+       return(sign*eta_k*sum);
+
+
+}
+
 /* TODO: error control not implemented ! */
 /* TODO: only leading and first term implemented ! */
 /* WARNING: untested leading and first term! */
@@ -410,8 +457,8 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
         {
           if(m+n>3) continue; //we do not need higher order derivatives for now
           printf("FROM nm LOOP: %d %d\n", n,m);
-          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )*factorial[m+i]*factorial_power(0.5, n) *r(m+i+1, k, 0.5*eta*theta, n, m+i);
-          derivatives[n][m] = pow(2.0,-n)*pow(eta, k-m-i+n )               *factorial_power(0.5, n)*r2(m+i+1, k, 0.5*eta*theta, n, m+i);
+          derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+
 
         }
 
@@ -432,25 +479,6 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
 
 	if(SERIES_TERMS_MAX==1) return;
-    /* CODE below to be discarded, above version is elegant and clean */
-
-
-    /* First expansion term (usually enough) */
-    /* Terrible code, need rewrite, e.g: 1-z = z11; z12=z11*z11, z13=z11*z12, k2=k*k, k3=k*k*k etc CHECK if results are multiplied by 2
-        as Sommerfeld formula require! */
-    result[0] = result[0] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k/eta+theta/4.0/(1.0-z));
-    result[1] = result[1] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(k-1.0)/eta/eta-theta*theta/16.0/(1.0-z)/(1.0-z)+0.5*k*theta/eta/(1.0-z));
-    result[2] = result[2] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(k*(2.0-3.0*k+k*k)/eta/eta/eta + 3.0*theta*theta*theta/64.0/(1.0-z)/(1.0-z)/(1.0-z) - 3.0*k*theta*theta/16.0/eta/(1.0-z)/(1.0-z) + 3.0*k*(k-1.0)*theta/4.0/eta/eta/(1.0-z));
-    result[3] = result[3] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(z/8.0/(1.0-z)/(1.0-z)+(1.0+k)/4.0/(1.0-z));
-    result[4] = result[4] + M_PI*M_PI/6.0*eta_k*sqrt_1z*z/8.0/theta/(1.0-z)/(1.0-z)*(2.0+k+1.5*z/(1.0-z));
-    result[5] = result[5] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(-3.0*z*theta/32.0/(1.0-z)/(1.0-z)/(1.0-z)-theta*(1.0+k)/8.0/(1.0-z)/(1.0-z)+0.25*k*(1.0+k)/eta/(1.0-z));
-    result[6] = result[6] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(15.0*z*eta*eta/128.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z)+3.0*eta*eta*(k+3.0)/64.0/(1.0-z)/(1.0-z)/(1.0-z));
-    result[7] = result[7] + M_PI*M_PI/6.0*eta_k*sqrt_1z/(1.0-z)/(1.0-z)*(    -0.125 - (3*k)/(16.) + k*k/(16.) - (3*z)/(8.*(1 - z)) +  (3*k*z)/(16.*(1 - z)) - (15*z*z)/(64.*(1 - z)*(1-z)));
-    result[8] = result[8] + M_PI*M_PI/6.0*eta_k*sqrt_1z*(   9/(64.*(1 - z)*(1 - z)*(1 - z)) + (9*k)/(64.*(1 - z)*(1 - z)*(1 - z)) +  k/(16.*(1 - z)*z*(1 - z)) + k*k*k/(16.*(1 - z)*z*(1 - z)) + 
-     -  (3*k)/(32.*(1 - z)*(1 - z)*z) + (3*k*k)/(32.*(1 - z)*(1 - z)*z) + 
-     -  (15*z)/(128.*(1 - z)*(1 - z)*(1 - z)*(1 - z)));
-    result[9] = result[9] + M_PI*M_PI/6.0*eta_k*sqrt_1z*theta*theta*theta*theta*(k*(k*k*k-6.0*k*k+11.0*k-6.0)/16.0/z/z/z/z -15.0/256.0/(1.0-z)/(1.0-z)/(1.0-z)/(1.0-z) + 3.0/32.0*k*(1.0-k)/z/z/(1.0-z)/(1.0-z)-k*(k*k-3.0*k+2.0)/8.0/z/z/z/(1.0-z) - 3.0/32.0*k/z/(1.0-z)/(1.0-z)/(1.0-z));
-
-
+ 
 
 }
