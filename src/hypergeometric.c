@@ -11,6 +11,17 @@ A. Odrzywolek, AOdrzywolek
 #define DEBUG 0
 #include "factorial.h" //pre-calculated factorials
 
+double fac2(int n)
+{
+
+  if(n==-3) return -1.0;
+  if(n==-1) return  1.0;
+  
+  return factorial2[n];
+
+}
+
+
 // Pochhammer[a,n]
 double pochhammer(double a, int n)
 {

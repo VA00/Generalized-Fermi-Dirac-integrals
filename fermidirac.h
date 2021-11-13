@@ -54,6 +54,7 @@ double quickFfermi4(double,double,double);
 double r(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double r2(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double sigmoid(double);
+double fac2(int);
 double pochhammer(double, int);
 double factorial_power(double, int);
 double incomplete_half_fractional_gamma( double, double);

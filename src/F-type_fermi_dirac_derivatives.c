@@ -366,7 +366,7 @@ void sommerfeld_derivatives(const double k, const double eta, const double theta
     double sum=0.0;
     int i,m,n;
 
-//FIXME: below is very unoptimized code
+//FIXME: below is a very unoptimized code
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
       {
@@ -374,7 +374,7 @@ void sommerfeld_derivatives(const double k, const double eta, const double theta
        eta_k = pow(eta,k - m + n);
        sum=0.0;
        for(i=0;i<=m;i++)
-         sum = sum + binom(m,i)*factorial2[2*n + 2*m - 3 - 2*i]*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
+         sum = sum + binom(m,i)*fac2(2*n + 2*m - 3 - 2*i)*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
        
        D[m][n] = sign*eta_k*sum;
       }
@@ -392,12 +392,12 @@ double sommerfeld_derivatives_m_n(const double k, const double eta, const double
     double sum=0.0;
     int i;
 
-       sign = (n%2) ? 1.0 : -1.0; // (-1)^(n+1);
+       sign = ((n%2)==0) ? -1.0 : 1.0; // (-1)^(n+1);
        eta_k = pow(eta,k - m + n);
        for(i=0;i<=m;i++)
-         sum = sum + binom(m,i)*factorial2[2*n + 2*m - 3 - 2*i]*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
+         sum = sum + binom(m,i)*fac2(2*n + 2*m - 3 - 2*i)*pow(2.0, i - m - 2*n)*pochhammer(k + 1.5 - m, i)*pow(z1,0.5 + i - m - n);
        
-       return(sign*eta_k*sum);
+       return sign*eta_k*sum;
 
 
 }
@@ -448,7 +448,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
                    +0.75*eta_k*theta*theta*S[2]
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
 
-	if(SERIES_TERMS_MAX==0) return;
+	if(SERIES_TERMS_MAX<1) return;
 
     //Compute partial derivatives at i-th Sommerfeld expansion order
     i=1;
@@ -456,7 +456,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
       for(m=0;m<=3;m++)
         {
           if(m+n>3) continue; //we do not need higher order derivatives for now
-          printf("FROM nm LOOP: %d %d\n", n,m);
+          
           derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
 
 
@@ -464,12 +464,12 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
     
 
-    result[0] = result[0] + 2.0*etaTBL[2*i]*derivatives[0][0];
-    result[1] = result[1] + 2.0*etaTBL[2*i]*derivatives[0][1];
+    result[0] = result[0] + 2.0*etaTBL[2*i]*derivatives[0][0];//+2.0*etaTBL[2*(i+1)]*derivatives[0][2];
+    result[1] = result[1] + 2.0*etaTBL[2*i]*derivatives[0][1];//+2.0*etaTBL[2*(i+1)]*derivatives[0][3];
     result[2] = result[2] + 2.0*etaTBL[2*i]*derivatives[0][2];
     result[3] = result[3] + 2.0*etaTBL[2*i]*derivatives[1][0];
     result[4] = result[4] + 2.0*etaTBL[2*i]*derivatives[2][0];
-    result[5] = result[5] + 2.0*etaTBL[2*i]*derivatives[1][1];
+    result[5] = result[5] + 2.0*etaTBL[2*i]*derivatives[1][1];//+2.0*etaTBL[2*(i+1)]*derivatives[1][3];
     result[6] = result[6] + 2.0*etaTBL[2*i]*derivatives[3][0];
     result[7] = result[7] + 2.0*etaTBL[2*i]*derivatives[2][1];
     result[8] = result[8] + 2.0*etaTBL[2*i]*derivatives[1][2];
@@ -477,8 +477,30 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
 
 
+	if(SERIES_TERMS_MAX<=1) return;
 
-	if(SERIES_TERMS_MAX==1) return;
- 
+#if 0
+
+    for(i=2;i<=SERIES_TERMS_MAX;i++)
+     {
+      for(n=0;n<=3;n++)
+        for(m=0;m<=3;m++)
+          {
+            if(m+n>3) continue; //we do not need higher order derivatives for now
+            if(m+n<=1){ derivatives[n][m] = derivatives[n][m+2]; continue;}  //re-use already computed eta derivatives
+            derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+          }
+      result[0] = result[0] + /* Already computed */           +2.0*etaTBL[2*(i+1)]*derivatives[0][2];
+      result[1] = result[1] + /* Already computed */           +2.0*etaTBL[2*(i+1)]*derivatives[0][3];
+      result[2] = result[2] + 2.0*etaTBL[2*i]*derivatives[0][2];
+      result[3] = result[3] + 2.0*etaTBL[2*i]*derivatives[1][0];
+      result[4] = result[4] + 2.0*etaTBL[2*i]*derivatives[2][0];
+      result[5] = result[5] + /* Already computed */           +2.0*etaTBL[2*(i+1)]*derivatives[1][3];
+      result[6] = result[6] + 2.0*etaTBL[2*i]*derivatives[3][0];
+      result[7] = result[7] + 2.0*etaTBL[2*i]*derivatives[2][1];
+      result[8] = result[8] + 2.0*etaTBL[2*i]*derivatives[1][2];
+      result[9] = result[9] + 2.0*etaTBL[2*i]*derivatives[0][3]; 
+     }
+#endif
 
 }
