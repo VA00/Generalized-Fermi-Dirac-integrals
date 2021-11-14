@@ -339,15 +339,11 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 }
 
 
-/* After some time of brain cooking:
+/* 
 
 i-th Sommerfeld term for partial derivative D^n/Dtheta^n D^m/Deta^m is:
 
 2 DirichletEta[2 i] Derivative[i][f][\[Eta]]], {\[Theta], n}, {\[Eta], m}]
-
-EQUIVALENT formula suitable for C/Fortran coding :
-
-2 DirichletEta[2 i] 2^-n \[Eta]^( k - m - i + n) (m + i)! FactorialPower[1/2, n] r[m + i + 1,  k, \[Eta] \[Theta]/2, n, m + i]
 
 NOTE: formula for eta derivatives, apart from 2 DirichletEta[2i] term, is simply shifted formula for i-th
 term. Therefore, once we have computed 1-st expansion for third derivative, we already have

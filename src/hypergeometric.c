@@ -316,9 +316,9 @@ double recursion_int_k(double k, double x)
 double sommerfeld_leading_term(double k, double x)
 {
 	
-	if( (k-floor(k)==0.5) && (k<=64.0) && (x<-0.5) ) 
+	if( (k-floor(k)==0.5) && (k<=64.0) && (x<-0.5) ) //half-frac k=-1/2,1/2,3/2,5/2,...
 		return recursion_half_frac_k(k, x);
-	else if ( (k-floor(k)==0.0) && (k<=32.0) && (x<-0.5) )
+	else if ( (k-floor(k)==0.0) && (k<=32.0) && (x<-0.5) )  //integer k=0,1,2,3,4,5,...
 		return recursion_int_k(k, x);
 	else
 	{
@@ -339,13 +339,14 @@ double sommerfeld_leading_term(double k, double x)
 
 void sommerfeld_leading_term_derivatives(double k, double z, double result[4])
 {
-	double s = sqrt(1.0-z);
+	double z1=1.0-z; 
+    double s = sqrt(z1);
 
 	result[0] = sommerfeld_leading_term(k,z);
 	//The first d/dz derivative of the 2F1(-0.5, 1+k,2+k,z) hypergeometric function
     result[1] = (1.0+k)/z*(s - result[0]);
     //The second d2/dz2 derivative
-	result[2] = (s + k*s + result[1]*(4.0 + k*(2.0 - 2.0*z) - 4.0*z))/(z*(-2.0 + 2.0*z));
+	result[2] = (s + k*s + result[1]*(4.0 + 2.0*k)*z1)/(-2.0*z*z1);
     ////The third d3/dz3 derivative
 	result[3] = (-s - k*s + result[2]*(-12.0 + (24.0 - 12.0*z)*z + k*(-4.0 + (8.0 - 4.0*z)*z)))/(z*(4.0 + z*(-8.0 + 4.0*z)));
 	
