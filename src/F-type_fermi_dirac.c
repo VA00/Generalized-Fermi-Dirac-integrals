@@ -395,7 +395,7 @@ double Ffermi_sommerfeld(const double k, const double eta, const double theta, c
 {
 	double leading_term, derivative,asymptotic_terms=0.0;
 	int i,j;
-	double etaTBL[12] = {0.50000000000000000000000000000000, \
+	const double etaTBL[12] = {0.50000000000000000000000000000000, \
                          0.69314718055994530941723212145818, \
                          0.82246703342411321823620758332301, \
                          0.90154267736969571404980362113359, \
