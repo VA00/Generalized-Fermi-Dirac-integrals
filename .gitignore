@@ -20,6 +20,7 @@
 *.lib
 *.a
 *.la
+*.lai
 *.lo
 
 # Shared objects (inc. Windows DLLs)
@@ -50,3 +51,27 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Autoconf artifacts
+*.in
+Makefile
+config.*
+*.m4
+compile
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+ar-lib
+stamp-h1
+missing
+*.Plo
+autom4te.cache/
+COPYING
+
+# Python files
+__pycache__
+.ropeproject
+python/dist
+
