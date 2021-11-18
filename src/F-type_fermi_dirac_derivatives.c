@@ -476,14 +476,14 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
             derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
           }
       result[0] = result[0] + 2.0*etaTBL_odd[i]*derivatives[0][0];
-      //result[0] = result[0] /* Already_odd mputed */            +2.0*etaTBL[2*(i+1)]*derivatives[0][2];
+      //result[0] = result[0] /* Already computed */            +2.0*etaTBL[2*(i+1)]*derivatives[0][2];
       result[1] = result[1] + 2.0*etaTBL_odd[i]*derivatives[0][1];
-      //result[1] = result[1] /* Already_odd mputed */            +2.0*etaTBL[2*(i+1)]*derivatives[0][3];
+      //result[1] = result[1] /* Already computed */            +2.0*etaTBL[2*(i+1)]*derivatives[0][3];
       result[2] = result[2] + 2.0*etaTBL_odd[i]*derivatives[0][2];
       result[3] = result[3] + 2.0*etaTBL_odd[i]*derivatives[1][0];
       result[4] = result[4] + 2.0*etaTBL_odd[i]*derivatives[2][0];
       result[5] = result[5] + 2.0*etaTBL_odd[i]*derivatives[1][1];
-      //result[5] = result[5] + /* Alrea_odddcomputed */          +2.0*etaTBL[2*(i+1)]*derivatives[1][3];
+      //result[5] = result[5] /* Already computed */          +2.0*etaTBL[2*(i+1)]*derivatives[1][3];
       result[6] = result[6] + 2.0*etaTBL_odd[i]*derivatives[3][0];
       result[7] = result[7] + 2.0*etaTBL_odd[i]*derivatives[2][1];
       result[8] = result[8] + 2.0*etaTBL_odd[i]*derivatives[1][2];
