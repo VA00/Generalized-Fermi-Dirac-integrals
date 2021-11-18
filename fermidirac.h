@@ -1,3 +1,22 @@
+#define DEBUG 0
+/* MAX_REFINE limit recursion depth for FFermi.
+Note, that convergence might be slow, and
+using very large large MAX_REFINE>16
+together with high PRECISION settings
+close to DBL_EPSILON results in extremely
+slow computations.
+*/
+#define MAX_REFINE 16 // more than 16 result is significant slow-down
+//#define PRECISION sqrt(DBL_EPSILON) // convergence is exponential, so in theory this is enough
+#define PRECISION_GOAL 8*DBL_EPSILON   // down to 2*DBL_EPSILON seem harmless, 1*DBL_EPSILON cause problems
+
+#define KAHAN 0 // Enable https://en.wikipedia.org/wiki/Kahan_summation_algorithm ; usually this has no significant effect, but results might be not identical, and computation slow
+#define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
+// Code is able to compute all derivatives, here we impose some hard-coded limits 
+#define DERIVATIVE_MATRIX_SIZE 4 /* 4 means derivatives up to $\partial^6 F / \partial^3 \theta \partial^3 \eta$ can be stored */
+#define DERIVATIVE_MAX_ORDER   3 /* 3 means derivatives up to $\partial^3 F$ are actually computed, remaining matrix entries are unused */
+
+
 //Standard Fermi-Dirac integrals G-type
 double Gfermi(double,double,double);
 
@@ -8,6 +27,7 @@ double Gm(double,double,double);
 //Standard Fermi-Dirac integrals F-type
 double Ffermi(const double, const double, const double);
 long double Ffermi_long(const long double, const long double, const long double);
+void Ffermi_derivatives(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 
 
 //Fixed-grid version

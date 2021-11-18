@@ -9,20 +9,6 @@ A. Odrzywolek, AOdrzywolek
 #include <math.h>
 #include <stdio.h>
 #include <float.h>
-#define DEBUG 0
-/* MAX_REFINE limit recursion depth for FFermi.
-Note, that convergence might be slow, and
-using very large large MAX_REFINE>16
-together with high PRECISION settings
-close to DBL_EPSILON results in extremely
-slow computations.
-*/
-#define MAX_REFINE 16 // more than 16 result is significant slow-down
-//#define PRECISION sqrt(DBL_EPSILON) // convergence is exponential, so in theory this is enough
-#define PRECISION 8*DBL_EPSILON   // down to 2*DBL_EPSILON seem harmless, 1*DBL_EPSILON cause problems
-//#define PRECISION pow(DBL_EPSILON,0.6666)
-#define KAHAN 0 // Enable https://en.wikipedia.org/wiki/Kahan_summation_algorithm ; usually this has no significant effect, but results might be not identical, and computation slow
-#define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
 
 
 /* Functions below are integrated with so-called DoubleExponential or Tanh-Sinh quadrature.
@@ -514,12 +500,12 @@ double Ffermi(const double k, const double eta, const double theta)
   else if( (eta<0.0) && (k>25.0) && (theta>=1.0) )
 	 return Ffermi_series_neg(k, eta, theta, DBL_EPSILON, 32);
   else
-	 return Ffermi_value(k,eta,theta,PRECISION, MAX_REFINE);
+	 return Ffermi_value(k,eta,theta,PRECISION_GOAL, MAX_REFINE);
 }
 
 long double Ffermi_long(const long double k, const long double eta, const long double theta)
 {
-  return Ffermi_value_long(k,eta,theta,PRECISION, MAX_REFINE);
+  return Ffermi_value_long(k,eta,theta,PRECISION_GOAL, MAX_REFINE);
 }
 
 

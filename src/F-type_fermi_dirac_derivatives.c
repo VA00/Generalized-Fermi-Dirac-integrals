@@ -9,21 +9,6 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl
 #include <math.h>
 #include <stdio.h>
 #include <float.h>
-#define DEBUG 0
-/* MAX_REFINE limit recursion depth for FFermi.
-Note, that convergence might be slow, and
-using very large large MAX_REFINE>16
-together with high PRECISION settings
-close to DBL_EPSILON results in extremely
-slow computations.
-*/
-#define MAX_REFINE 16 // more than 16 result is significant slow-down
-//#define PRECISION sqrt(DBL_EPSILON) // convergence is exponential, so in theory this is enough
-#define PRECISION 8*DBL_EPSILON   // down to 2*DBL_EPSILON seem harmless, 1*DBL_EPSILON cause problems
-//#define PRECISION pow(DBL_EPSILON,0.6666)
-#define KAHAN 0 // Enable https://en.wikipedia.org/wiki/Kahan_summation_algorithm ; usually this has no significant effect, but results might be not identical, and computation slow
-#define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
-
 
 /* Linear recurrence required to compute general mixed partial derivatives D[\[Eta]^k Sqrt[1 + \[Eta] \[Theta]/2], {\[Theta], n}, {\[Eta], m}]*/
 double r(int i, double k, double z, int n, int m)
@@ -353,7 +338,7 @@ term. Therefore, once we have computed 1-st expansion for third derivative, we a
 
 
 /* Formula below computes D[eta^k Sqrt[1+eta*theta/2],{eta,m},{theta,n}] */
-void sommerfeld_derivatives(const double k, const double eta, const double theta, double D[4][4])
+void sommerfeld_derivatives(const double k, const double eta, const double theta, double D[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
     #include "factorial.h"
     double sign;
@@ -405,7 +390,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
     double z1=1.0-z;
     double sqrt_1z = sqrt(z1);
-    double S[4], derivatives[4][4];
+    double S[DERIVATIVE_MATRIX_SIZE], derivatives[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE];
     int n,m; // order of partial derivatives with respect to theta and eta, respectively
     #include "factorial.h"
 
@@ -442,7 +427,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
     for(n=0;n<=3;n++)
       for(m=0;m<=3;m++)
         {
-          if(m+n>3) continue; //we do not need higher order derivatives for now
+          if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
           
           derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
 
@@ -471,7 +456,7 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
       for(n=0;n<=3;n++)
         for(m=0;m<=3;m++)
           {
-            if(m+n>3) continue; //we do not need higher order derivatives for now
+            if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
             if(m+n<=1){ derivatives[n][m] = derivatives[n][m+2]; continue;}  //re-use already computed eta derivatives
             derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
           }
@@ -490,4 +475,37 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
       result[9] = result[9] + 2.0*etaTBL_odd[i]*derivatives[0][3]; 
      }
 
+}
+
+
+void Ffermi_derivatives(const double k, const double eta, const double theta, double FD[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+{
+   double result[10];
+
+   if( eta>56000.0) 
+    {
+	  Ffermi_sommerfeld_derivatives(k, eta, theta, PRECISION_GOAL, 2, result);
+    }
+  else
+    {
+      Ffermi_value_derivatives(k,eta,theta,PRECISION_GOAL, MAX_REFINE, result);
+    }
+    
+    FD[0][0] = result[0];
+    FD[1][0] = result[1];
+    FD[2][0] = result[2];
+    FD[3][0] = result[9];
+    FD[0][1] = result[3];
+    FD[1][1] = result[5];
+    FD[2][1] = result[8];
+    FD[3][1] = -1.0;
+    FD[0][2] = result[4];
+    FD[1][2] = result[7];
+    FD[2][2] = -1.0;
+    FD[3][2] = -1.0;
+    FD[0][3] = result[6];
+    FD[1][3] = -1.0;
+    FD[2][3] = -1.0;
+    FD[3][3] = -1.0;
+    return;
 }
