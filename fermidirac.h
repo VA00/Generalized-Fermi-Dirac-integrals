@@ -13,8 +13,8 @@ slow computations.
 #define KAHAN 0 // Enable https://en.wikipedia.org/wiki/Kahan_summation_algorithm ; usually this has no significant effect, but results might be not identical, and computation slow
 #define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
 // Code is able to compute all derivatives, here we impose some hard-coded limits 
-#define DERIVATIVE_MATRIX_SIZE 4 /* 4 means derivatives up to $\partial^6 F / \partial^3 \theta \partial^3 \eta$ can be stored */
-#define DERIVATIVE_MAX_ORDER   3 /* 3 means derivatives up to $\partial^3 F$ are actually computed, remaining matrix entries are unused */
+#define DERIVATIVE_MATRIX_SIZE 4 /* Default 4 means derivatives up to $\partial^6 F / \partial^3 \theta \partial^3 \eta$ can be stored */
+#define DERIVATIVE_MAX_ORDER   3 /* Default 3 means derivatives up to $\partial^3 F$ are actually computed, remaining matrix entries are unused */
 
 
 //Standard Fermi-Dirac integrals G-type
@@ -74,9 +74,16 @@ double quickFfermi4(double,double,double);
 double r(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double r2(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double sigmoid(double);
+double sigmoid_derivative(double, int);
+double sigmoid_derivative_polynomial(double , int);
+void   sigmoid_derivative_polynomial_vector(double, double[DERIVATIVE_MATRIX_SIZE]);
+double g_derivative(double, double, int);
+void   g_derivative_vector(double, double, double[DERIVATIVE_MATRIX_SIZE]);
 double fac2(int);
 double pochhammer(double, int);
 double factorial_power(double, int);
+double eulerian(int, int);
+double power_squaring(double, int);
 double incomplete_half_fractional_gamma( double, double);
 double zeta1( double, int);
 double zeta2( double, int);
@@ -101,7 +108,7 @@ double recursion_int_k(double, double);
 double Ffermi_value         (double, double, double, double, int);
 double Ffermi_series_neg    (double, double, double, double, int);
 double Ffermi_sommerfeld    (double, double, double, double, int);
-void sommerfeld_derivatives(const double, const double, const double, double[4][4]);
+void sommerfeld_derivatives(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double sommerfeld_derivatives_m_n(const double, const double, const double, int, int);
 void   Ffermi_sommerfeld_derivatives(const double, const double, const double, const double, const int, double[10]);
 double Ffermi_series_sqrt_a (double, double, double, double, int);

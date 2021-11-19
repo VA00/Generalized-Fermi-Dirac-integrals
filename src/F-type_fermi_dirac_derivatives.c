@@ -10,6 +10,36 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl
 #include <stdio.h>
 #include <float.h>
 
+
+double g_derivative(double x, double theta, int n)
+{
+  double g2 = 1.0+0.5*x*theta;
+  double g  = sqrt(g2);
+  double fac = 0.25*x/g2;
+
+  if(n==0) return g;
+
+  return -(2.0*n-3.0)*fac*g_derivative(x, theta, n-1);
+
+}
+
+
+//without leging g !
+void g_derivative_vector(double x, double theta, double dg[DERIVATIVE_MATRIX_SIZE])
+{
+  double g2 = 1.0+0.5*x*theta;
+  double fac = 0.25*x/g2;
+  int i;
+  
+  for(i=0;i<DERIVATIVE_MATRIX_SIZE;i++)
+   {
+    dg[i] = ((i%2) ? 1.0 : -1.0)*fac2(2*i-3)*power_squaring(fac,i);
+   }
+
+  return;
+
+}
+
 /* Linear recurrence required to compute general mixed partial derivatives D[\[Eta]^k Sqrt[1 + \[Eta] \[Theta]/2], {\[Theta], n}, {\[Eta], m}]*/
 double r(int i, double k, double z, int n, int m)
 {
@@ -169,7 +199,6 @@ void integrandF_derivatives(const double t, const double k, const double eta, co
 }
 
 void integrandF_derivatives_v2(const double t, const double k, const double eta, const double theta, double integrand[10])
-
 {
   
   double x,dx,exp_t,s,g,g2,z,f;
@@ -228,8 +257,68 @@ void integrandF_derivatives_v2(const double t, const double k, const double eta,
 }
 
 
+void integrandF_derivatives_v3(const double t, const double k, const double eta, const double theta, double integrand[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+{
+    //double result[10];
+    double ds[DERIVATIVE_MATRIX_SIZE],dg[DERIVATIVE_MATRIX_SIZE];
+    double x,dx,exp_t,s,g,g2,z,f;
+    int m,n;
 
+  exp_t  = exp(-t); //this might be faster, THX Karol U.
+  x      = exp(  t - exp_t ); /* Masatake Mori, eq. (4.17) */
+  dx     = 1.0+exp_t; /* in this case x is adsorbed in integrand, and x^k -> x^(k+1) */
+  g2  = 1.0+ 0.5*theta*x;
+  g = sqrt(g2);
+  z = 0.25*x/g2;
+  s = sigmoid(eta-x);
+  
+  if(x-eta<-log(DBL_EPSILON)) // if using machine precison we are able to add 1.0 to exp() in sigmoid
+    {
+	
+	f = exp( (k+1.0)*(t - exp_t) );
+    f = f*g*s*dx;
+	
+	}
+  else // if using machine precison we are UNABLE to add 1.0 to exp() in sigmoid
+    {
+    //sigma = exp(eta-x) sigmoid adsorbed into exp, to avoid 0*infinity mess 
+	f = exp((k+1.0)*(t - exp_t) + eta - x );
+	f = f*g*dx;
+    }
 
+    //calling eta and theta derivatives
+    sigmoid_derivative_polynomial_vector(s, ds);
+    g_derivative_vector(x, theta, dg);
+    
+    for(m=0;m<DERIVATIVE_MATRIX_SIZE;m++)
+      for(n=0;n<DERIVATIVE_MATRIX_SIZE;n++)
+       {
+         if(n+m>DERIVATIVE_MAX_ORDER) continue;
+         integrand[m][n] = f*ds[m]*dg[n];
+       }
+     
+/*
+    integrandF_derivatives_v2(t, k, eta, theta, result);
+
+    integrand[0][0] = result[0];
+    integrand[1][0] = result[1];
+    integrand[2][0] = result[2];
+    integrand[3][0] = result[9];
+    integrand[0][1] = result[3];
+    integrand[1][1] = result[5];
+    integrand[2][1] = result[8];
+    integrand[3][1] = -1.0;
+    integrand[0][2] = result[4];
+    integrand[1][2] = result[7];
+    integrand[2][2] = -1.0;
+    integrand[3][2] = -1.0;
+    integrand[0][3] = result[6];
+    integrand[1][3] = -1.0;
+    integrand[2][3] = -1.0;
+    integrand[3][3] = -1.0;
+*/
+  return;
+}
 
 void Ffermi_estimate_derivatives(double h, double last_result[10], double k, double eta, double theta, double new_result[10])
 {
