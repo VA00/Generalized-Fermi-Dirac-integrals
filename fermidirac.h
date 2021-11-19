@@ -27,7 +27,8 @@ double Gm(double,double,double);
 //Standard Fermi-Dirac integrals F-type
 double Ffermi(const double, const double, const double);
 long double Ffermi_long(const long double, const long double, const long double);
-void Ffermi_derivatives(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+void Ffermi_derivatives(const double, const double, const double, double[10]);
+void Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 
 
 //Fixed-grid version

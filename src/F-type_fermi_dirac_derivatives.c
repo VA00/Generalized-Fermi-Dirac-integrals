@@ -691,10 +691,81 @@ void Ffermi_sommerfeld_derivatives(const double k, const double eta, const doubl
 
 }
 
+/* TODO: error control not implemented ! */
 
-void Ffermi_derivatives(const double k, const double eta, const double theta, double FD[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
-   double result[10];
+	double z = -0.5*eta*theta,eta_k=pow(eta,k);
+    double z1=1.0-z;
+    double sqrt_1z = sqrt(z1);
+    double S[DERIVATIVE_MATRIX_SIZE], derivatives[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE];
+    int n,m; // order of partial derivatives with respect to theta and eta, respectively
+    #include "factorial.h"
+
+	int i,j;
+    double derivative;
+    /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
+    sommerfeld_leading_term_derivatives(k,z,S);
+
+    /* Leading term */
+    /* NOTE/FIXME: eta derivatives DO NOT require 2F1 function, and can be computed using std. math */
+
+	result[0][0] =  eta_k*eta/(1.0+k)*S[0];
+    result[1][0] =  eta_k*sqrt_1z;
+    result[2][0] =  result[1][0]/eta*(0.5+k-0.5/z1);
+    result[0][1] = -eta_k*eta*eta*S[1]/(2.0+2.0*k);
+    result[0][2] =  eta_k*eta*eta*eta*S[2]/(4.0+4.0*k);
+    result[1][1] =  eta_k*eta*(eta*theta*S[2]-(4.0+2.0*k)*S[1])/(4.0+4.0*k);
+    result[0][3] = -eta_k*eta*eta*eta*eta*S[3]/(8.0+8.0*k);
+    result[1][2] =  eta_k*eta*eta*(2.0*(k+3.0)*S[2] - eta*theta*S[3])/8.0/(1.0+k);
+    result[2][1] = -eta_k*(4.0*(2.0+3.0*k+k*k)*S[1]+eta*theta*((-8.0-4.0*k)*S[2]+eta*theta*S[3]))/(8.0+8.0*k);
+    result[3][0] =  k*(k-1.0)*eta_k/(eta*eta)*S[0]
+                    -1.5*k*eta_k/eta*theta*S[1]
+                   +0.75*eta_k*theta*theta*S[2]
+  -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
+
+	if(SERIES_TERMS_MAX<1) return;
+
+    //Compute partial derivatives at i-th Sommerfeld expansion order
+    i=1;
+    for(n=0;n<=3;n++)
+      for(m=0;m<=3;m++)
+        {
+          if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
+          
+          derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+
+
+        }
+
+    
+    for(m=0;m<DERIVATIVE_MATRIX_SIZE;m++)
+     for(n=0;n<DERIVATIVE_MATRIX_SIZE;n++)
+      result[m][n] = result[m][n] + 2.0*etaTBL_odd[i]*derivatives[m][n];
+
+
+
+	if(SERIES_TERMS_MAX<=1) return;
+
+    for(i=2;i<=SERIES_TERMS_MAX;i++)
+     {
+      for(n=0;n<=3;n++)
+        for(m=0;m<=3;m++)
+          {
+            if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
+            if(m+n<=1){ derivatives[n][m] = derivatives[n][m+2]; continue;}  //re-use already computed eta derivatives
+            derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+            result[m][n] = result[m][n] + 2.0*etaTBL_odd[i]*derivatives[m][n];
+  
+          }
+     }
+
+}
+
+
+void Ffermi_derivatives(const double k, const double eta, const double theta, double result[10])
+{
+   
 
    if( eta>56000.0) 
     {
@@ -705,21 +776,21 @@ void Ffermi_derivatives(const double k, const double eta, const double theta, do
       Ffermi_value_derivatives(k,eta,theta,PRECISION_GOAL, MAX_REFINE, result);
     }
     
-    FD[0][0] = result[0];
-    FD[1][0] = result[1];
-    FD[2][0] = result[2];
-    FD[3][0] = result[9];
-    FD[0][1] = result[3];
-    FD[1][1] = result[5];
-    FD[2][1] = result[8];
-    FD[3][1] = -1.0;
-    FD[0][2] = result[4];
-    FD[1][2] = result[7];
-    FD[2][2] = -1.0;
-    FD[3][2] = -1.0;
-    FD[0][3] = result[6];
-    FD[1][3] = -1.0;
-    FD[2][3] = -1.0;
-    FD[3][3] = -1.0;
+    return;
+}
+
+void Ffermi_derivatives_matrix(const double k, const double eta, const double theta, double FD[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+{
+   
+
+   if( eta>56000.0) 
+    {
+	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 2, FD);
+    }
+  else
+    {
+      Ffermi_value_derivatives_matrix(k,eta,theta,PRECISION_GOAL, MAX_REFINE, FD);
+    }
+    
     return;
 }
