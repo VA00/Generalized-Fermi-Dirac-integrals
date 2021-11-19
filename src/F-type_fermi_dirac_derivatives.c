@@ -416,12 +416,11 @@ void Ffermi_value_derivatives(const double k, const double eta, const double the
 
 /* Arbitrary order derivative version */
 
-
-
 void Ffermi_estimate_derivatives_matrix(double h, double last_result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE], double k, double eta, double theta, double new_result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
   
   int step,i,m,n;
+  /* I hope I understand correctly https://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Designated-Inits.html */
   double sum_Left_old[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0]  = 0.0 }, sum_Right_old[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0]  = 0.0 };
   double sum_Left_new[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0]  = 0.0 }, sum_Right_new[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0]  = 0.0 };
   double old_result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE], integrand[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE];
@@ -503,7 +502,8 @@ void Ffermi_estimate_derivatives_matrix(double h, double last_result[DERIVATIVE_
 void Ffermi_value_derivatives_matrix(const double k, const double eta, const double theta,
   const double precision, const int recursion_limit, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
-  
+ 
+  /* I hope I understand correctly https://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Designated-Inits.html */ 
   double old[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]={ [0][0] = -1.0 }; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart at the first call
   double new[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]={ [0][0] =  0.0 };
   double h=0.5; //initial dbl. exp. step
