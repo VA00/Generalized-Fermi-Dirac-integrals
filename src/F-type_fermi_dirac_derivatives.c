@@ -786,9 +786,9 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
 {
    
 
-   if( eta>2048.0) 
+   if( eta>65536.0) 
     {
-	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 2, FD);
+	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 1, FD);
     }
   else
     {
