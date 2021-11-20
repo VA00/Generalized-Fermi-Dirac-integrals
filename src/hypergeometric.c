@@ -336,23 +336,6 @@ double sommerfeld_leading_term(double k, double x)
 	}
 }
 
-
-void sommerfeld_leading_term_derivatives(double k, double z, double result[4])
-{
-	double z1=1.0-z; 
-    double s = sqrt(z1);
-
-	result[0] = sommerfeld_leading_term(k,z);
-	//The first d/dz derivative of the 2F1(-0.5, 1+k,2+k,z) hypergeometric function
-    result[1] = (1.0+k)/z*(s - result[0]);
-    //The second d2/dz2 derivative
-	result[2] = (s + k*s + result[1]*(4.0 + 2.0*k)*z1)/(-2.0*z*z1);
-    ////The third d3/dz3 derivative
-	result[3] = (-s - k*s + result[2]*(-12.0 + (24.0 - 12.0*z)*z + k*(-4.0 + (8.0 - 4.0*z)*z)))/(z*(4.0 + z*(-8.0 + 4.0*z)));
-	
-
-}
-
 /*
 double sommerfeld_leading_term(double k, double z)
 {
@@ -366,6 +349,53 @@ double sommerfeld_leading_term(double k, double z)
 		return hyp2f1_reflection4(-0.5,1.0+k,2.0+k,z);
 }
 */
+
+
+//Hypergeometric2F1[-1/2, 1 + k, 2 + k, z]*(-1)^i*  Pochhammer[1 + k, i]/z^i + (1 + k) Sqrt[1 - z] Sum[(-1)^(j + 1)      Pochhammer[-(1/2), i - j] FactorialPower[i + k,  j - 1] (1 - z)^(j - i) z^(-j), {j, 1, i}]
+void sommerfeld_leading_term_derivatives(double k, double z, double result[DERIVATIVE_MATRIX_SIZE])
+{
+	double z1=1.0-z; 
+    double s = sqrt(z1);
+    double sum, F = sommerfeld_leading_term(k,z); //Hypergeometric2F1[-0.5,1+k,2+k,z]
+    int i,j;
+
+    result[0]=F;
+
+/*  //One could use optimized formula for derivatives up to order 3, to be tested
+	
+	//The first d/dz derivative of the 2F1(-0.5, 1+k,2+k,z) hypergeometric function
+    result[1] = (1.0+k)/z*(s - result[0]);
+    //The second d2/dz2 derivative
+	result[2] = (s + k*s + result[1]*(4.0 + 2.0*k)*z1)/(-2.0*z*z1);
+    ////The third d3/dz3 derivative
+	result[3] = (-s - k*s + result[2]*(-12.0 + (24.0 - 12.0*z)*z + k*(-4.0 + (8.0 - 4.0*z)*z)))/(z*(4.0 + z*(-8.0 + 4.0*z)));
+	
+*/
+
+    for(i=1;i<DERIVATIVE_MATRIX_SIZE;i++)
+     {
+      sum=0.0;
+      for(j=1;j<=i;j++)
+       sum = sum + (((j%2)==0) ? -1.0 : 1.0)*pochhammer(-0.5,i-j)*factorial_power(k+i,j-1)/power_squaring(z,j)/power_squaring(z1,i-j);
+      sum = sum*s*(1.0+k);
+      result[i] = sum + F*(((i%2)==0) ? 1.0 : -1.0)*pochhammer(1.0+k,i)/power_squaring(z,i);
+     }
+
+
+
+}
+
+void sommerfeld_leading_term_derivatives_matrix(double k, double z, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+{
+	double z1=1.0-z; 
+    double s = sqrt(z1);
+    int m,n;
+
+	result[0][0] = sommerfeld_leading_term(k,z);
+	
+
+}
+
 
 
 double sommerfeld_leading_term_int(double k, double x)
