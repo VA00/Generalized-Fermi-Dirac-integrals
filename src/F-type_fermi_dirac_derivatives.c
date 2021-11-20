@@ -565,7 +565,7 @@ void sommerfeld_derivatives(const double k, const double eta, const double theta
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
       {
-       sign = (n%2) ? 1.0 : -1.0; // (-1)^(n+1);
+       sign = (n%2) ? 1.0 : -1.0; // (-1)^(n+1) 
        eta_k = pow(eta,k - m + n);
        sum=0.0;
        for(i=0;i<=m;i++)
@@ -704,12 +704,14 @@ void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, cons
 
 	int i,j;
     double derivative;
+
+
     /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
-    sommerfeld_leading_term_derivatives(k,z,S);
+    //sommerfeld_leading_term_derivatives(k,z,S);
 
-    /* Leading term */
-    /* NOTE/FIXME: eta derivatives DO NOT require 2F1 function, and can be computed using std. math */
+    sommerfeld_leading_term_derivatives_matrix(k, eta, theta, result);
 
+/*
 	result[0][0] =  eta_k*eta/(1.0+k)*S[0];
     result[1][0] =  eta_k*sqrt_1z;
     result[2][0] =  result[1][0]/eta*(0.5+k-0.5/z1);
@@ -723,17 +725,18 @@ void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, cons
                     -1.5*k*eta_k/eta*theta*S[1]
                    +0.75*eta_k*theta*theta*S[2]
   -eta_k*eta*theta*theta*theta/(8.0+8.0*k)*S[3];
-
+*/
 	if(SERIES_TERMS_MAX<1) return;
 
     //Compute partial derivatives at i-th Sommerfeld expansion order
+    //FIXME: some/most(?) of them are already computed above! 
     i=1;
     for(n=0;n<=3;n++)
       for(m=0;m<=3;m++)
         {
           if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
           
-          derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+          derivatives[m][n] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
 
 
         }
@@ -754,7 +757,7 @@ void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, cons
           {
             if(m+n>DERIVATIVE_MAX_ORDER) continue; //we do not need higher order derivatives for now
             if(m+n<=1){ derivatives[n][m] = derivatives[n][m+2]; continue;}  //re-use already computed eta derivatives
-            derivatives[n][m] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+            derivatives[m][n] = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
             result[m][n] = result[m][n] + 2.0*etaTBL_odd[i]*derivatives[m][n];
   
           }
@@ -767,7 +770,7 @@ void Ffermi_derivatives(const double k, const double eta, const double theta, do
 {
    
 
-   if( eta>56000.0) 
+   if( eta>2048.0) 
     {
 	  Ffermi_sommerfeld_derivatives(k, eta, theta, PRECISION_GOAL, 2, result);
     }
@@ -783,7 +786,7 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
 {
    
 
-   if( eta>56000.0) 
+   if( eta>2048.0) 
     {
 	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 2, FD);
     }

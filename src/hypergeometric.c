@@ -385,13 +385,27 @@ void sommerfeld_leading_term_derivatives(double k, double z, double result[DERIV
 
 }
 
-void sommerfeld_leading_term_derivatives_matrix(double k, double z, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
+void sommerfeld_leading_term_derivatives_matrix(double k, double eta, double theta, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
-	double z1=1.0-z; 
+	double z = -0.5*eta*theta;
+    double z1=1.0-z; 
     double s = sqrt(z1);
+    double D[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE];
     int m,n;
 
-	result[0][0] = sommerfeld_leading_term(k,z);
+    //pure theta derivatives 
+	sommerfeld_leading_term_derivatives(k,z,result[0]);
+    for(n=0;n<DERIVATIVE_MATRIX_SIZE;n++)
+     result[0][n] = result[0][n]*power_squaring(-0.5*eta,n)*pow(eta,1.0+k)/(1.0+k);
+
+    //other derivatives
+    sommerfeld_derivatives(k, eta, theta, D);
+    for(m=1;m<DERIVATIVE_MATRIX_SIZE;m++)
+     for(n=0;n<DERIVATIVE_MATRIX_SIZE;n++)
+       result[m][n] = D[m-1][n];
+       //result[m][n] = sommerfeld_derivatives_m_n(k, eta,theta, m-1, n);
+
+    return;
 	
 
 }
