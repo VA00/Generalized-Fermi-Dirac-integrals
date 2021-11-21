@@ -55,6 +55,8 @@ Exponentiation by squaring
 double power_squaring(double x, int n)
 {
   double p=1.0;
+
+  if(n<0){x=1.0/x;n=-n;}
   
   while(n!=0)
   {
