@@ -551,6 +551,9 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   double sum_Left_old = 0.0 , sum_Right_old = 0.0 ;
   double sum_Left_new = 0.0 , sum_Right_new = 0.0 ;
   double old_result, new_result, integrand;
+
+  double peak_position=0.0;
+  if(eta>4.0) peak_position = log(eta);//+1.0/eta-1.0/eta/eta; Precise formula is Log[eta] + W(1/eta), where W is LambertW==ProductLog
   
   
   if(last_result<0.0) /* Negative value means first iteration*/
@@ -583,7 +586,7 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
     
 	i = i + step;
   }
-  while  ( sum_Right_old!=sum_Right_new); //FIXME - this do not work for a very large eta, returns 0.0
+  while  ( (sum_Right_old!=sum_Right_new) || (h*i<=peak_position) ); 
 
   /* integral for -Infinity < t <0  */
   
@@ -658,6 +661,8 @@ double Ffermi_value_derivatives_m_n(const double k, const double eta, const doub
   double old = -1.0 ; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart at the first call
   double new =  0.0 ;
   double h=0.5; //initial dbl. exp. step
+  if(eta>4.0) h = log(eta); // this force quadrature to hit peak of the transformed integrand, peak position for sigma(eta-x) is log(eta)+W(1/eta) = log(eta)+1/eta-1/eta^2+....
+  
   
   
   //if(k<=-1.0) return nan("NaN"); /* not converging for k <= -1 */
@@ -671,8 +676,7 @@ double Ffermi_value_derivatives_m_n(const double k, const double eta, const doub
   
   while( fabs(old-new)>precision*fabs(new) && h>pow(2.0,-recursion_limit))
   {
-      old=new;
-    
+    old=new;
     h=0.5*h;
     new = Ffermi_estimate_derivatives_m_n(h, old, k, eta, theta, m, n);
   }
