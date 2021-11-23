@@ -27,8 +27,9 @@ double Gm(double,double,double);
 //Standard Fermi-Dirac integrals F-type
 double Ffermi(const double, const double, const double);
 long double Ffermi_long(const long double, const long double, const long double);
-void Ffermi_derivatives(const double, const double, const double, double[10]);
-void Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+void   Ffermi_derivatives(const double, const double, const double, double[10]);
+void   Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+double Ffermi_derivatives_m_n(const double, const double, const double, const int, const int);
 
 
 //Fixed-grid version
@@ -104,6 +105,7 @@ double BesselK(const double, const double);
 double sommerfeld_leading_term(double, double);
 void   sommerfeld_leading_term_derivatives(double, double, double[DERIVATIVE_MATRIX_SIZE]);
 void   sommerfeld_leading_term_derivatives_matrix(double, double, double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+double sommerfeld_leading_term_derivatives_m_n(const double, const double, const double, const int m, const int n);
 double sommerfeld_leading_term_int(double, double);
 double recursion_half_frac_k(double, double);
 double recursion_int_k(double, double);
@@ -111,9 +113,10 @@ double Ffermi_value         (double, double, double, double, int);
 double Ffermi_series_neg    (double, double, double, double, int);
 double Ffermi_sommerfeld    (double, double, double, double, int);
 void sommerfeld_derivatives(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
-double sommerfeld_derivatives_m_n(const double, const double, const double, int, int);
+double sommerfeld_derivatives_m_n(const double, const double, const double, const int, const int);
 void   Ffermi_sommerfeld_derivatives(const double, const double, const double, const double, const int, double[10]);
 void   Ffermi_sommerfeld_derivatives_matrix(double, double, double, double, int, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+double Ffermi_sommerfeld_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
 double Ffermi_series_sqrt_a (double, double, double, double, int);
 double Ffermi_series_sqrt_b (double, double, double, double, int);
 

@@ -412,7 +412,28 @@ void sommerfeld_leading_term_derivatives_matrix(double k, double eta, double the
 
 }
 
+double sommerfeld_leading_term_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n)
+{
+	double z = -0.5*eta*theta;
+    double z1=1.0-z; 
+    double s = sqrt(z1);
+    double S[DERIVATIVE_MATRIX_SIZE];
+    
 
+    //pure theta derivatives 
+	
+    if(m==0)
+    { 
+      sommerfeld_leading_term_derivatives(k,z,S);//FIXME nonsense temporary solution, compute 4 deriv. to return 1  
+      return  S[n]*power_squaring(-0.5*eta,n)*pow(eta,1.0+k)/(1.0+k);
+    }
+    else
+    {
+      return sommerfeld_derivatives_m_n(k, eta,theta, m-1, n);
+    }
+
+
+}
 
 double sommerfeld_leading_term_int(double k, double x)
 {

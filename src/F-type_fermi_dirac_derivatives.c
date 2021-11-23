@@ -10,21 +10,22 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl
 #include <stdio.h>
 #include <float.h>
 
-
+//without leading g !
 double g_derivative(double x, double theta, int n)
 {
   double g2 = 1.0+0.5*x*theta;
   double g  = sqrt(g2);
   double fac = 0.25*x/g2;
 
-  if(n==0) return g;
+  if(n==0) return 1.0;
+  //if(n==0) return g; 
 
   return -(2.0*n-3.0)*fac*g_derivative(x, theta, n-1);
 
 }
 
 
-//without leging g !
+//without leading g !
 void g_derivative_vector(double x, double theta, double dg[DERIVATIVE_MATRIX_SIZE])
 {
   double g2 = 1.0+0.5*x*theta;
@@ -320,6 +321,49 @@ void integrandF_derivatives_v3(const double t, const double k, const double eta,
   return;
 }
 
+
+double integrandF_derivatives_m_n(const double t, const double k, const double eta, const double theta, const int m, const int n)
+{
+    
+    double ds,dg;
+    double x,dx,exp_t,s,g,g2,z,f, integrand;
+    
+
+  exp_t  = exp(-t); //this might be faster, THX Karol U.
+  x      = exp(  t - exp_t ); /* Masatake Mori, eq. (4.17) */
+  dx     = 1.0+exp_t; /* in this case x is adsorbed in integrand, and x^k -> x^(k+1) */
+  g2  = 1.0+ 0.5*theta*x;
+  g = sqrt(g2);
+  z = 0.25*x/g2;
+  s = sigmoid(eta-x);
+  
+  if(x-eta<-log(DBL_EPSILON)) // if using machine precison we are able to add 1.0 to exp() in sigmoid
+    {
+	
+	f = exp( (k+1.0)*(t - exp_t) );
+    f = f*g*s*dx;
+	
+	}
+  else // if using machine precison we are UNABLE to add 1.0 to exp() in sigmoid
+    {
+    //sigma = exp(eta-x) sigmoid adsorbed into exp, to avoid 0*infinity mess 
+	f = exp((k+1.0)*(t - exp_t) + eta - x );
+	f = f*g*dx;
+    }
+
+    //calling eta and theta derivatives FIXME: ridiculuous method to compute single derivative
+    //calling eta and theta derivatives
+    //sigmoid_derivative_polynomial_vector(s, ds);
+    //g_derivative_vector(x, theta, dg);
+    ds=sigmoid_derivative_polynomial(s, m);
+    dg=g_derivative(x, theta, n);
+    
+    integrand = f*ds*dg;
+
+  return integrand;
+}
+
+
 /* vector 10 version */
 
 void Ffermi_estimate_derivatives(double h, double last_result[10], double k, double eta, double theta, double new_result[10])
@@ -497,6 +541,75 @@ void Ffermi_estimate_derivatives_matrix(double h, double last_result[DERIVATIVE_
 
 }
 
+/* Arbitrary order derivative version, one derivative per call */
+
+double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, double eta, double theta, int m, int n)
+{
+  
+  int step,i;
+  
+  double sum_Left_old = 0.0 , sum_Right_old = 0.0 ;
+  double sum_Left_new = 0.0 , sum_Right_new = 0.0 ;
+  double old_result, new_result, integrand;
+  
+  
+  if(last_result<0.0) /* Negative value means first iteration*/
+  {
+    step=1;
+    integrand = integrandF_derivatives_m_n(0.0, k, eta, theta, m, n);
+    old_result = 2.0*h*integrand;
+  }
+  else
+  {
+    step=2;
+    old_result = last_result;//Is this necessary? old_result===last_result?
+  }
+  
+  /* integral for 0 < t < Infinity  */
+  
+  sum_Right_old = 0.0;
+  sum_Right_new = 0.0;
+  
+  
+  i=1;
+
+  do
+  {
+    sum_Right_old = sum_Right_new;
+
+    integrand = integrandF_derivatives_m_n(h*i, k, eta, theta, m, n);
+
+      sum_Right_new = sum_Right_old + integrand;
+    
+	i = i + step;
+  }
+  while  ( sum_Right_old!=sum_Right_new); //FIXME - this do not work for a very large eta, returns 0.0
+
+  /* integral for -Infinity < t <0  */
+  
+  sum_Left_old = 0.0;
+  sum_Left_new = 0.0;
+  
+  
+  i=-1;
+  do
+  {
+    sum_Left_old = sum_Left_new;
+
+    integrand = integrandF_derivatives_m_n(h*i, k, eta, theta, m, n);
+
+    sum_Left_new = sum_Left_old + integrand;
+    i = i - step;
+  }
+  while  (sum_Left_old!=sum_Left_new); //FIXME - this do not work for a very large eta, returns 0.0
+  
+  
+       new_result = h*(sum_Left_new  + sum_Right_new) + 0.5*old_result;
+
+  return new_result;
+
+
+}
 
 
 void Ffermi_value_derivatives_matrix(const double k, const double eta, const double theta,
@@ -536,6 +649,37 @@ void Ffermi_value_derivatives_matrix(const double k, const double eta, const dou
     
 }
 
+
+double Ffermi_value_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n,
+  const double precision, const int recursion_limit)
+{
+ 
+  /* I hope I understand correctly https://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Designated-Inits.html */ 
+  double old = -1.0 ; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart at the first call
+  double new =  0.0 ;
+  double h=0.5; //initial dbl. exp. step
+  
+  
+  //if(k<=-1.0) return nan("NaN"); /* not converging for k <= -1 */
+
+  new = Ffermi_estimate_derivatives_m_n(h, old, k, eta, theta, m, n);
+
+      old = 0.0;/*Is this necessary? Two lines below we reset old to new which is zero anyway. 
+         Except precision goal is achieved at first run (in theory possible, if one modify code and set e.g h=0.125 or less what MIGHT may have sense in future
+   optimization ) */ 
+
+  
+  while( fabs(old-new)>precision*fabs(new) && h>pow(2.0,-recursion_limit))
+  {
+      old=new;
+    
+    h=0.5*h;
+    new = Ffermi_estimate_derivatives_m_n(h, old, k, eta, theta, m, n);
+  }
+
+    return new;
+    
+}
 
 
 /* 
@@ -578,7 +722,7 @@ void sommerfeld_derivatives(const double k, const double eta, const double theta
 }
 
 /* Formula below computes D[eta^k Sqrt[1+eta*theta/2],{eta,m},{theta,n}] */
-double sommerfeld_derivatives_m_n(const double k, const double eta, const double theta, int m, int n)
+double sommerfeld_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n)
 {
     #include "factorial.h"
     double sign;
@@ -765,12 +909,59 @@ void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, cons
 
 }
 
+/* TODO: error control not implemented ! */
+
+double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n, const double precision, const int SERIES_TERMS_MAX)
+{
+	double z = -0.5*eta*theta,eta_k=pow(eta,k);
+    double z1=1.0-z;
+    double sqrt_1z = sqrt(z1);
+    double result = 0.0;
+    
+    #include "factorial.h"
+
+	int i,j;
+    double derivative;
+
+
+    /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
+    //sommerfeld_leading_term_derivatives(k,z,S);
+
+    
+    result = sommerfeld_leading_term_derivatives_m_n(k, eta, theta, m, n);
+	if(SERIES_TERMS_MAX<1) return result; 
+
+    //Compute partial derivatives at i-th Sommerfeld expansion order
+    //FIXME: some/most(?) of them are already computed above! 
+    i=1;
+    if(m+n>DERIVATIVE_MAX_ORDER) return -1.0; //FIXME: return nan
+          
+    derivative = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+
+    result = result + 2.0*etaTBL_odd[i]*derivative;
+
+
+
+	if(SERIES_TERMS_MAX<=1) return result;
+
+    for(i=2;i<=SERIES_TERMS_MAX;i++)
+     {
+       derivative = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+       result = result + 2.0*etaTBL_odd[i]*derivative;
+     }
+     
+    return result; 
+     
+
+}
+
+
 
 void Ffermi_derivatives(const double k, const double eta, const double theta, double result[10])
 {
    
 
-   if( eta>2048.0) 
+   if( eta>2048.0) //original 56000.0
     {
 	  Ffermi_sommerfeld_derivatives(k, eta, theta, PRECISION_GOAL, 2, result);
     }
@@ -786,9 +977,9 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
 {
    
 
-   if( eta>65536.0) 
+   if( eta>8192.0) 
     {
-	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 1, FD);
+	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 2, FD);
     }
   else
     {
@@ -796,4 +987,21 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
     }
     
     return;
+}
+
+
+double Ffermi_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n)
+{
+   
+
+   if( eta>8192.0) 
+    {
+	  return Ffermi_sommerfeld_derivatives_m_n(k, eta, theta, m, n, PRECISION_GOAL, 2);
+    }
+  else
+    {
+      return Ffermi_value_derivatives_m_n(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
+    }
+    
+    
 }
