@@ -556,10 +556,10 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   if(eta>4.0) peak_position = log(eta);//+1.0/eta-1.0/eta/eta; Precise formula is Log[eta] + W(1/eta), where W is LambertW==ProductLog
   
   
-  if(last_result<0.0) /* Negative value means first iteration*/
+  if(last_result==0.0) /* ZERO value means first iteration, this should work also for derivatives, which can be negative ! Maybe nan/inf will be more appropriate*/
   {
     step=1;
-    integrand = integrandF_derivatives_m_n(0.0, k, eta, theta, m, n);
+    integrand = integrandF_derivatives_m_n(peak_position, k, eta, theta, m, n);
     old_result = 2.0*h*integrand;
   }
   else
@@ -580,13 +580,13 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   {
     sum_Right_old = sum_Right_new;
 
-    integrand = integrandF_derivatives_m_n(h*i, k, eta, theta, m, n);
+    integrand = integrandF_derivatives_m_n(peak_position+h*i, k, eta, theta, m, n);
 
       sum_Right_new = sum_Right_old + integrand;
     
 	i = i + step;
   }
-  while  ( (sum_Right_old!=sum_Right_new) || (h*i<=peak_position) ); 
+  while  ( (sum_Right_old!=sum_Right_new) /*|| (h*i<=peak_position)*/ ); 
 
   /* integral for -Infinity < t <0  */
   
@@ -599,12 +599,12 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   {
     sum_Left_old = sum_Left_new;
 
-    integrand = integrandF_derivatives_m_n(h*i, k, eta, theta, m, n);
+    integrand = integrandF_derivatives_m_n(peak_position+h*i, k, eta, theta, m, n);
 
     sum_Left_new = sum_Left_old + integrand;
     i = i - step;
   }
-  while  (sum_Left_old!=sum_Left_new); //FIXME - this do not work for a very large eta, returns 0.0
+  while  (sum_Left_old!=sum_Left_new); 
   
   
        new_result = h*(sum_Left_new  + sum_Right_new) + 0.5*old_result;
@@ -658,10 +658,10 @@ double Ffermi_value_derivatives_m_n(const double k, const double eta, const doub
 {
  
   /* I hope I understand correctly https://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Designated-Inits.html */ 
-  double old = -1.0 ; //Setting old to -1.0 cause Ffermi_estimate_derivatives to restart at the first call
+  double old =  0.0 ; //Setting old to 0.0 cause Ffermi_estimate_derivatives to restart at the first call
   double new =  0.0 ;
   double h=0.5; //initial dbl. exp. step
-  if(eta>4.0) h = log(eta); // this force quadrature to hit peak of the transformed integrand, peak position for sigma(eta-x) is log(eta)+W(1/eta) = log(eta)+1/eta-1/eta^2+....
+  //if(eta>4.0) h = log(eta); // this force quadrature to hit peak of the transformed integrand, peak position for sigma(eta-x) is log(eta)+W(1/eta) = log(eta)+1/eta-1/eta^2+....
   
   
   
@@ -981,9 +981,9 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
 {
    
 
-   if( eta>8192.0) 
+   if( eta>512.0) 
     {
-	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 2, FD);
+	  Ffermi_sommerfeld_derivatives_matrix(k, eta, theta, PRECISION_GOAL, 5, FD);
     }
   else
     {
@@ -998,9 +998,9 @@ double Ffermi_derivatives_m_n(const double k, const double eta, const double the
 {
    
 
-   if( eta>8192.0) 
+   if( eta>512.0) 
     {
-	  return Ffermi_sommerfeld_derivatives_m_n(k, eta, theta, m, n, PRECISION_GOAL, 2);
+	  return Ffermi_sommerfeld_derivatives_m_n(k, eta, theta, m, n, PRECISION_GOAL, 5);
     }
   else
     {

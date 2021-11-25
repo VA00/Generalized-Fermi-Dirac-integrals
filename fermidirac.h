@@ -30,6 +30,7 @@ long double Ffermi_long(const long double, const long double, const long double)
 void   Ffermi_derivatives(const double, const double, const double, double[10]);
 void   Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double Ffermi_derivatives_m_n(const double, const double, const double, const int, const int);
+double Ffermi_value_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
 
 
 //Fixed-grid version
