@@ -964,7 +964,7 @@ double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const
 void Ffermi_derivatives(const double k, const double eta, const double theta, double result[10])
 {
    
-
+   
    if( eta>2048.0) //original 56000.0
     {
 	  Ffermi_sommerfeld_derivatives(k, eta, theta, PRECISION_GOAL, 2, result);
@@ -996,11 +996,19 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
 
 double Ffermi_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n)
 {
+    /* FIXME: improve initializer to work with 3-rd order derivs, but remain general*/
+    //double eta[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0] = 8192.0 };
+    double eta_s[4][4] = {{2048.0, 4096.0, 4096.0, 4096.0},
+                         {8192.0,  256.0,   64.0,   64.0},
+                         {  64.0,   64.0,   64.0,   64.0},
+                         {  64.0,   64.0,   64.0,   64.0}
+                         };
+  
    
-
-   if( eta>512.0) 
+    
+   if( eta>eta_s[m][n]) 
     {
-	  return Ffermi_sommerfeld_derivatives_m_n(k, eta, theta, m, n, PRECISION_GOAL, 5);
+	  return Ffermi_sommerfeld_derivatives_m_n(k, eta, theta, m, n, PRECISION_GOAL, 2); //Sommerfeld order might be m,n dependent or adaptive
     }
   else
     {
