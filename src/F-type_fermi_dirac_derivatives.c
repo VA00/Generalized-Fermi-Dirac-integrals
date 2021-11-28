@@ -546,14 +546,15 @@ void Ffermi_estimate_derivatives_matrix(double h, double last_result[DERIVATIVE_
 double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, double eta, double theta, int m, int n)
 {
   
-  int step,i;
+
   
   double sum_Left_old = 0.0 , sum_Right_old = 0.0 ;
   double sum_Left_new = 0.0 , sum_Right_new = 0.0 ;
   double old_result, new_result, integrand;
 
+  int step,i, i_peak=0;
   double peak_position=0.0;
-  if(eta>4.0) peak_position = log(eta);//+1.0/eta-1.0/eta/eta; Precise formula is Log[eta] + W(1/eta), where W is LambertW==ProductLog
+  if(eta>1024.0) peak_position = log(eta);//+1.0/eta-1.0/eta/eta; Precise formula is Log[eta] + W(1/eta), where W is LambertW==ProductLog
   
   
   if(last_result==0.0) /* ZERO value means first iteration, this should work also for derivatives, which can be negative ! Maybe nan/inf will be more appropriate*/
@@ -573,8 +574,10 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   sum_Right_old = 0.0;
   sum_Right_new = 0.0;
   
+  //if(eta>64.0) i_peak = (int) ceil(log(eta)/h); 
   
   i=1;
+  //i=i_peak+1;
 
   do
   {
@@ -595,6 +598,8 @@ double Ffermi_estimate_derivatives_m_n(double h, double last_result, double k, d
   
   
   i=-1;
+  //i=i_peak-1;
+
   do
   {
     sum_Left_old = sum_Left_new;
