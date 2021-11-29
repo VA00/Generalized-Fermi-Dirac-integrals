@@ -30,7 +30,9 @@ long double Ffermi_long(const long double, const long double, const long double)
 void   Ffermi_derivatives(const double, const double, const double, double[10]);
 void   Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double Ffermi_derivatives_m_n(const double, const double, const double, const int, const int);
+void   Ffermi_value_derivatives_matrix(const double, const double, const double, const double, const int, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double Ffermi_value_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
+long double Ffermi_value_derivatives_m_n_long(const long double, const long double, const long double, const int, const int, const long double, const int);
 
 
 //Fixed-grid version
@@ -77,8 +79,10 @@ double quickFfermi4(double,double,double);
 double r(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double r2(int, double , double , int , int ); //linear recurrence required for Sommerfeld partial derivatives
 double sigmoid(double);
+long double sigmoid_long(long double);
 double sigmoid_derivative(double, int);
 double sigmoid_derivative_polynomial(double , int);
+long double sigmoid_derivative_polynomial_long(long double , int);
 void   sigmoid_derivative_polynomial_vector(double, double[DERIVATIVE_MATRIX_SIZE]);
 double g_derivative(double, double, int);
 void   g_derivative_vector(double, double, double[DERIVATIVE_MATRIX_SIZE]);
