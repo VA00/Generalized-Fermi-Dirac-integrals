@@ -9,6 +9,7 @@ A. Odrzywolek, andrzej.odrzywolek@uj.edu.pl
 #include <math.h>
 #include <stdio.h>
 #include <float.h>
+#include <quadmath.h>
 
 //without leading g !
 double g_derivative(double x, double theta, int n)
@@ -34,6 +35,19 @@ long double g_derivative_long(long double x, long double theta, int n)
   //if(n==0) return g; 
 
   return -(2.0L*n-3.0L)*fac*g_derivative_long(x, theta, n-1);
+
+}
+
+__float128 g_derivative_quad(__float128 x, __float128 theta, int n)
+{
+  __float128 g2 = 1.0q+0.5q*x*theta;
+  __float128 g  = sqrtq(g2);
+  __float128 fac = 0.25q*x/g2;
+
+  if(n==0) return 1.0q;
+  //if(n==0) return g; 
+
+  return -(2.0q*n-3.0q)*fac*g_derivative_quad(x, theta, n-1);
 
 }
 
@@ -388,7 +402,7 @@ long double integrandF_derivatives_m_n_long(const long double t, const long doub
   z = 0.25L*x/g2;
   s = sigmoid_long(eta-x);
   
-  if(x-eta<-log(LDBL_EPSILON)) // if using machine precison we are able to add 1.0 to exp() in sigmoid
+  if(x-eta<-logl(LDBL_EPSILON)) // if using machine precison we are able to add 1.0 to exp() in sigmoid
     {
 	
 	f = expl( (k+1.0L)*(t - exp_t) );
@@ -411,7 +425,45 @@ long double integrandF_derivatives_m_n_long(const long double t, const long doub
   return integrand;
 }
 
-/* vector 10 version */
+__float128 integrandF_derivatives_m_n_quad(const __float128 t, const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n)
+{
+    
+    __float128 ds,dg;
+    __float128 x,dx,exp_t,s,g,g2,z,f, integrand;
+    
+
+  exp_t  = expq(-t); //this might be faster, THX Karol U.
+  x      = expq(  t - exp_t ); /* Masatake Mori, eq. (4.17) */
+  dx     = 1.0q+exp_t; /* in this case x is adsorbed in integrand, and x^k -> x^(k+1) */
+  g2  = 1.0q + 0.5q*theta*x;
+  g = sqrtq(g2);
+  z = 0.25q*x/g2;
+  s = sigmoid_quad(eta-x);
+  
+  if(x-eta<-logq(FLT128_EPSILON)) // if using machine precison we are able to add 1.0 to exp() in sigmoid
+    {
+	
+	f = expq( (k+1.0q)*(t - exp_t) );
+    f = f*g*s*dx;
+	
+	}
+  else // if using machine precison we are UNABLE to add 1.0 to exp() in sigmoid
+    {
+    //sigma = exp(eta-x) sigmoid adsorbed into exp, to avoid 0*infinity mess 
+	f = expq((k+1.0q)*(t - exp_t) + eta - x );
+	f = f*g*dx;
+    }
+
+
+    ds=sigmoid_derivative_polynomial_quad(s, m);
+    dg=g_derivative_quad(x, theta, n);
+    
+    integrand = f*ds*dg;
+
+  return integrand;
+}
+
+/* vector 10-component version */
 
 void Ffermi_estimate_derivatives(double h, double last_result[10], double k, double eta, double theta, double new_result[10])
 {
@@ -743,6 +795,83 @@ long double Ffermi_estimate_derivatives_m_n_long(long double h, long double last
 
 }
 
+__float128 Ffermi_estimate_derivatives_m_n_quad(__float128 h, __float128 last_result, __float128 k, __float128 eta, __float128 theta, int m, int n)
+{
+  
+
+  
+  __float128 sum_Left_old = 0.0q , sum_Right_old = 0.0q ;
+  __float128 sum_Left_new = 0.0q , sum_Right_new = 0.0q ;
+  __float128 old_result, new_result, integrand;
+
+  int step,i, i_peak=0;
+  __float128 peak_position=0.0q;
+  if(eta>32.0q) peak_position = logq(eta);//+1.0/eta-1.0/eta/eta; Precise formula is Log[eta] + W(1/eta), where W is LambertW==ProductLog
+  
+  
+  if(last_result==0.0q) /* ZERO value means first iteration, this should work also for derivatives, which can be negative ! Maybe nan/inf will be more appropriate*/
+  {
+    step=1;
+    integrand = integrandF_derivatives_m_n_quad(peak_position, k, eta, theta, m, n);
+    old_result = 2.0q*h*integrand;
+  }
+  else
+  {
+    step=2;
+    old_result = last_result;//Is this necessary? old_result===last_result?
+  }
+  
+  /* integral for 0 < t < Infinity  */
+  
+  sum_Right_old = 0.0q;
+  sum_Right_new = 0.0q;
+  
+  //if(eta>64.0) i_peak = (int) ceil(log(eta)/h); 
+  
+  i=1;
+  //i=i_peak+1;
+
+  do
+  {
+    sum_Right_old = sum_Right_new;
+
+    integrand = integrandF_derivatives_m_n_quad(peak_position+h*i, k, eta, theta, m, n);
+
+      sum_Right_new = sum_Right_old + integrand;
+    
+	i = i + step;
+  }
+  while  ( (sum_Right_old!=sum_Right_new) /*|| (h*i<=peak_position)*/ ); 
+
+  /* integral for -Infinity < t <0  */
+  
+  sum_Left_old = 0.0q;
+  sum_Left_new = 0.0q;
+  
+  
+  i=-1;
+  //i=i_peak-1;
+
+  do
+  {
+    sum_Left_old = sum_Left_new;
+
+    integrand = integrandF_derivatives_m_n_quad(peak_position+h*i, k, eta, theta, m, n);
+
+    sum_Left_new = sum_Left_old + integrand;
+    i = i - step;
+  }
+  while  (sum_Left_old!=sum_Left_new); 
+  
+  
+       new_result = h*(sum_Left_new  + sum_Right_new) + 0.5q*old_result;
+
+  return new_result;
+
+
+}
+
+
 
 void Ffermi_value_derivatives_matrix(const double k, const double eta, const double theta,
   const double precision, const int recursion_limit, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
@@ -841,6 +970,37 @@ long double Ffermi_value_derivatives_m_n_long(const long double k, const long do
     return new;
     
 }
+
+
+__float128 Ffermi_value_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n,
+  const __float128 precision, const int recursion_limit)
+{
+ 
+  __float128 old =  0.0q ; //Setting old to 0.0 cause Ffermi_estimate_derivatives to restart at the first call
+  __float128 new =  0.0q ;
+  __float128 h=0.5q; //initial dbl. exp. step
+  //if(eta>4.0) h = log(eta); // this force quadrature to hit peak of the transformed integrand, peak position for sigma(eta-x) is log(eta)+W(1/eta) = log(eta)+1/eta-1/eta^2+....
+  
+  
+  
+  //if(k<=-1.0) return nan("NaN"); /* not converging for k <= -1 */
+
+  new = Ffermi_estimate_derivatives_m_n_quad(h, old, k, eta, theta, m, n);
+
+      old = 0.0q; 
+
+  
+  while( fabsq(old-new)>precision*fabsq(new) && h>powq(2.0q,-recursion_limit))
+  {
+    old=new;
+    h=0.5q*h;
+    new = Ffermi_estimate_derivatives_m_n_quad(h, old, k, eta, theta, m, n);
+  }
+
+    return new;
+    
+}
+
 
 /* 
 
