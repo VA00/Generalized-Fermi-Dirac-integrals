@@ -14,7 +14,7 @@ ffibuilder.set_source("fermidirac",  # name of the output C extension
     #include "fermidirac.h"
 """,
     sources=glob.glob("../src/*.c"),
-    libraries=['m'])    # on Unix, link with the math library
+    libraries=['m', 'quadmath'])    # on Unix, link with the math library
 
 if __name__ == "__main__":
     ffibuilder.compile(verbose=True)
