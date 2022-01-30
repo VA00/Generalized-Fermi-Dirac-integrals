@@ -479,7 +479,7 @@ double Ffermi_complete(const double k, const double eta)
     
 }
 
-long double Ffermi_complete_value_long(const long double kL, const long double etaL,
+long double Ffermi_complete_dblexp_long(const long double kL, const long double etaL,
   const long double precision, const int recursion_limit)
 {
   

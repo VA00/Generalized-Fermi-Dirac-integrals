@@ -528,7 +528,7 @@ void Ffermi_estimate_derivatives(double h, double last_result[10], double k, dou
 
 
 
-void Ffermi_value_derivatives(const double k, const double eta, const double theta,
+void Ffermi_dblexp_derivatives(const double k, const double eta, const double theta,
   const double precision, const int recursion_limit, double result[10])
 {
   
@@ -873,7 +873,7 @@ __float128 Ffermi_estimate_derivatives_m_n_quad(__float128 h, __float128 last_re
 
 
 
-void Ffermi_value_derivatives_matrix(const double k, const double eta, const double theta,
+void Ffermi_dblexp_derivatives_matrix(const double k, const double eta, const double theta,
   const double precision, const int recursion_limit, double result[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE])
 {
  
@@ -911,7 +911,7 @@ void Ffermi_value_derivatives_matrix(const double k, const double eta, const dou
 }
 
 
-double Ffermi_value_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n,
+double Ffermi_dblexp_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n,
   const double precision, const int recursion_limit)
 {
  
@@ -942,7 +942,7 @@ double Ffermi_value_derivatives_m_n(const double k, const double eta, const doub
     
 }
 
-long double Ffermi_value_derivatives_m_n_long(const long double k, const long double eta, const long double theta, const int m, const int n,
+long double Ffermi_dblexp_derivatives_m_n_long(const long double k, const long double eta, const long double theta, const int m, const int n,
   const long double precision, const int recursion_limit)
 {
  
@@ -972,7 +972,7 @@ long double Ffermi_value_derivatives_m_n_long(const long double k, const long do
 }
 
 
-__float128 Ffermi_value_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n,
+__float128 Ffermi_dblexp_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n,
   const __float128 precision, const int recursion_limit)
 {
  
@@ -1287,7 +1287,7 @@ void Ffermi_derivatives(const double k, const double eta, const double theta, do
     }
   else
     {
-      Ffermi_value_derivatives(k,eta,theta,PRECISION_GOAL, MAX_REFINE, result);
+      Ffermi_dblexp_derivatives(k,eta,theta,PRECISION_GOAL, MAX_REFINE, result);
     }
     
     return;
@@ -1303,7 +1303,7 @@ void Ffermi_derivatives_matrix(const double k, const double eta, const double th
     }
   else
     {
-      Ffermi_value_derivatives_matrix(k,eta,theta,PRECISION_GOAL, MAX_REFINE, FD);
+      Ffermi_dblexp_derivatives_matrix(k,eta,theta,PRECISION_GOAL, MAX_REFINE, FD);
     }
     
     return;
@@ -1328,7 +1328,7 @@ double Ffermi_derivatives_m_n(const double k, const double eta, const double the
     }
   else
     {
-      return Ffermi_value_derivatives_m_n(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
+      return Ffermi_dblexp_derivatives_m_n(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
     }
     
     

@@ -30,10 +30,10 @@ long double Ffermi_long(const long double, const long double, const long double)
 void   Ffermi_derivatives(const double, const double, const double, double[10]);
 void   Ffermi_derivatives_matrix(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double Ffermi_derivatives_m_n(const double, const double, const double, const int, const int);
-void   Ffermi_value_derivatives_matrix(const double, const double, const double, const double, const int, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
-double Ffermi_value_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
-long double Ffermi_value_derivatives_m_n_long(const long double, const long double, const long double, const int, const int, const long double, const int);
-__float128 Ffermi_value_derivatives_m_n_quad(const __float128, const __float128, const __float128, const int, const int, const __float128, const int);
+void   Ffermi_dblexp_derivatives_matrix(const double, const double, const double, const double, const int, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
+double Ffermi_dblexp_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
+long double Ffermi_dblexp_derivatives_m_n_long(const long double, const long double, const long double, const int, const int, const long double, const int);
+__float128 Ffermi_dblexp_derivatives_m_n_quad(const __float128, const __float128, const __float128, const int, const int, const __float128, const int);
 
 
 //Fixed-grid version
@@ -54,7 +54,7 @@ void fixedFfermi_derivatives_v3(const double, const double, const double,
 		   double *, double *, double *,
 		   double *, double *, double *, double *
 		   );
-void Ffermi_value_derivatives(const double, const double, const double,
+void Ffermi_dblexp_derivatives(const double, const double, const double,
   const double , const int , double[10]);
 
 double fixedFfermi(const double, const double, const double,
@@ -139,7 +139,7 @@ double Ffermi_complete_dbl_exp       (const double, const double, const double, 
 double Ffermi_complete_series_polylog(const double, const double, const double, const int);
 double Ffermi_complete_series_zeta   (const double, const double, const double, const int);
 double Ffermi_complete_series_asympt (const double, const double, const double, const int);
-long double Ffermi_complete_value_long(const long double, const long double, const long double, const int);
+long double Ffermi_complete_dblexp_long(const long double, const long double, const long double, const int);
 double Ffermi_value(const double, const double, const double, const double, const int);
 
 double integrandF_complete(const double, const double, const double);

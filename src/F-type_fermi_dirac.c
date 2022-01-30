@@ -352,7 +352,7 @@ double Ffermi_value(const double k, const double eta, const double theta,
 }
 
 
-long double Ffermi_value_long(const long double k, const long double eta, const long double theta,  const long double precision, const int recursion_limit)
+long double Ffermi_dblexp_long(const long double k, const long double eta, const long double theta,  const long double precision, const int recursion_limit)
 {
   
   long double old=0.0L, new=0.0L, h=0.5L;
@@ -505,7 +505,7 @@ double Ffermi(const double k, const double eta, const double theta)
 
 long double Ffermi_long(const long double k, const long double eta, const long double theta)
 {
-  return Ffermi_value_long(k,eta,theta,PRECISION_GOAL, MAX_REFINE);
+  return Ffermi_dblexp_long(k,eta,theta,PRECISION_GOAL, MAX_REFINE);
 }
 
 
