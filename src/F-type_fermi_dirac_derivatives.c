@@ -1423,11 +1423,11 @@ __float128 Ffermi_derivatives_m_n_quad(const __float128 k, const __float128 eta,
     
    if( eta>eta_s[m][n]) 
     {
-	  return Ffermi_sommerfeld_derivatives_m_n_quad(k, eta, theta, m, n, PRECISION_GOAL_QUAD, 2); //Sommerfeld order might be m,n dependent or adaptive
+	  return Ffermi_sommerfeld_derivatives_m_n_quad(k, eta, theta, m, n, PRECISION_GOAL_QUAD, 6); //Sommerfeld order might be m,n dependent or adaptive
     }
   else
     {
-      return Ffermi_dblexp_derivatives_m_n_quad(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
+      return Ffermi_dblexp_derivatives_m_n_quad(k,eta,theta, m, n, PRECISION_GOAL_QUAD, MAX_REFINE);
     }
     
     

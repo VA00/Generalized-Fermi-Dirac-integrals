@@ -29,8 +29,8 @@ double fac2(int n)
 __float128 fac2_quad(int n)
 {
 
-  if(n==-3) return -1.0;
-  if(n==-1) return  1.0;
+  if(n==-3) return -1.0q;
+  if(n==-1) return  1.0q;
   
   return factorial2_quad[n];
 
@@ -159,7 +159,7 @@ __float128 hyp2f1_series_quad(__float128 a, __float128 b, __float128 c, __float1
 		sum_new = sum_old + pochhammer_quad(a,i)*pochhammer_quad(b,i)/pochhammer_quad(c,i)/tgammaq(1.0q+i)*powq(z,i);
 		i++;
 	}
-    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+    while ( ( (precision>0.0q) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
 
 	return sum_new;
 }
