@@ -1061,6 +1061,25 @@ double sommerfeld_derivatives_m_n(const double k, const double eta, const double
 
 }
 
+__float128 sommerfeld_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n)
+{
+    #include "factorial_quad.h"
+    __float128 sign;
+    __float128 eta_k;
+    __float128 z1 = 1.0q + 0.5q*eta*theta;
+    __float128 sum=0.0q;
+    int i;
+
+       sign = ((n%2)==0) ? -1.0q : 1.0q; // (-1)^(n+1);
+       eta_k = powq(eta,k - m + n);
+       for(i=0;i<=m;i++)
+         sum = sum + binom_quad(m,i)*fac2_quad(2*n + 2*m - 3 - 2*i)*powq(2.0, i - m - 2*n)*pochhammer_quad(k + 1.5 - m, i)*powq(z1,0.5 + i - m - n);
+       
+       return sign*eta_k*sum;
+
+
+}
+
 /* TODO: error control not implemented ! */
 
 void Ffermi_sommerfeld_derivatives(const double k, const double eta, const double theta, const double precision, const int SERIES_TERMS_MAX, double result[10])
@@ -1229,14 +1248,14 @@ void Ffermi_sommerfeld_derivatives_matrix(const double k, const double eta, cons
 
 }
 
-/* TODO: error control not implemented ! */
+
 
 double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n, const double precision, const int SERIES_TERMS_MAX)
 {
 	double z = -0.5*eta*theta,eta_k=pow(eta,k);
     double z1=1.0-z;
     double sqrt_1z = sqrt(z1);
-    double result = 0.0;
+    double result = 0.0,sum_new,sum_old;
     
     #include "factorial.h"
 
@@ -1253,6 +1272,8 @@ double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const
 
     //Compute partial derivatives at i-th Sommerfeld expansion order
     //FIXME: some/most(?) of them are already computed above! 
+
+/*
     i=1;
     if(m+n>DERIVATIVE_MAX_ORDER) return -1.0; //FIXME: return nan
           
@@ -1264,17 +1285,70 @@ double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const
 
 	if(SERIES_TERMS_MAX<=1) return result;
 
+
     for(i=2;i<=SERIES_TERMS_MAX;i++)
      {
        derivative = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
        result = result + 2.0*etaTBL_odd[i]*derivative;
      }
-     
     return result; 
+*/     
+    i=1;
+    sum_new = result; 
+	do
+	{
+		sum_old = sum_new;
+        derivative = sommerfeld_derivatives_m_n(k, eta, theta, m+2*i-1, n);
+		sum_new = sum_old + 2.0*etaTBL_odd[i]*derivative;
+		i++;
+	}
+    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+
+
+
+    return sum_new;
      
 
 }
 
+
+__float128 Ffermi_sommerfeld_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n, const __float128 precision, const int SERIES_TERMS_MAX)
+{
+	__float128 z = -0.5q*eta*theta,eta_k=powq(eta,k);
+    __float128 z1=1.0q-z;
+    __float128 sqrt_1z = sqrtq(z1);
+    __float128 result = 0.0q,sum_new,sum_old;
+    
+    #include "factorial_quad.h"
+
+	int i,j;
+    __float128 derivative;
+
+
+    /* S[z_] := Hypergeometric2F1[-1/2, 1 + k, 2 + k, z] */
+    //sommerfeld_leading_term_derivatives(k,z,S);
+
+    
+    result = sommerfeld_leading_term_derivatives_m_n_quad(k, eta, theta, m, n);
+	if(SERIES_TERMS_MAX<1) return result; 
+    
+    i=1;
+    sum_new = result; 
+	do
+	{
+		sum_old = sum_new;
+        derivative = sommerfeld_derivatives_m_n_quad(k, eta, theta, m+2*i-1, n);
+		sum_new = sum_old + 2.0q*etaTBL_odd_quad[i]*derivative;
+		i++;
+	}
+    while ( ( (precision>0.0q) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+
+
+
+    return sum_new;
+     
+
+}
 
 
 void Ffermi_derivatives(const double k, const double eta, const double theta, double result[10])
@@ -1329,6 +1403,31 @@ double Ffermi_derivatives_m_n(const double k, const double eta, const double the
   else
     {
       return Ffermi_dblexp_derivatives_m_n(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
+    }
+    
+    
+}
+
+
+__float128 Ffermi_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n)
+{
+    /* FIXME: improve initializer to work with 3-rd order derivs, but remain general*/
+    //double eta[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0] = 8192.0 };
+    __float128 eta_s[4][4] = {{2048.0q, 4096.0q, 4096.0q, 4096.0q},
+                              {8192.0q,  256.0q,   64.0q,   64.0q},
+                              {  64.0q,   64.0q,   64.0q,   64.0q},
+                              {  64.0q,   64.0q,   64.0q,   64.0q}
+                              };
+  
+   
+    
+   if( eta>eta_s[m][n]) 
+    {
+	  return Ffermi_sommerfeld_derivatives_m_n_quad(k, eta, theta, m, n, PRECISION_GOAL_QUAD, 2); //Sommerfeld order might be m,n dependent or adaptive
+    }
+  else
+    {
+      return Ffermi_dblexp_derivatives_m_n_quad(k,eta,theta, m, n, PRECISION_GOAL, MAX_REFINE);
     }
     
     

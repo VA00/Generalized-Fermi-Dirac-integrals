@@ -21,6 +21,17 @@ double binom(double n, int k)
 	
 }
 
+__float128 binom_quad(__float128 n, int k)
+{
+	__float128 prod=1.0q;
+	int i;
+	
+	for(i=1;i<=k;i++) prod = prod * (1.0q+n-i)/i;
+	
+	return prod;
+	
+}
+
 double eulerian(int i, int j)
 {  
   int l;

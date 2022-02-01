@@ -8,10 +8,14 @@ A. Odrzywolek, AOdrzywolek
 #include <math.h>
 #include <stdio.h>
 #include <float.h>
+#include <quadmath.h>
 #define DEBUG 0
 #include "factorial.h" //pre-calculated factorials
+#include "factorial_quad.h" //pre-calculated factorials
+
 
 //FIXME - general formula for n<-3 and n>64 missing
+//FIXME2 - conditionals easily avoided fillind array starting from (-3)!!
 double fac2(int n)
 {
 
@@ -22,6 +26,15 @@ double fac2(int n)
 
 }
 
+__float128 fac2_quad(int n)
+{
+
+  if(n==-3) return -1.0;
+  if(n==-1) return  1.0;
+  
+  return factorial2_quad[n];
+
+}
 
 // Pochhammer[a,n]
 double pochhammer(double a, int n)
@@ -35,10 +48,33 @@ double pochhammer(double a, int n)
 	
 }
 
+__float128 pochhammer_quad(__float128 a, int n)
+{
+   __float128 prod=1.0q;
+   int j;
+   
+   for(j=0;j<n;j++) prod=prod*(a+j);
+   
+   return prod;
+	
+}
+
 // FactorialPower[a,n] == Pochhammer[a - n + 1, n]
 double factorial_power(double a, int n)
 {
    double prod=1.0;
+   int j;
+   
+   for(j=0;j<n;j++) prod=prod*(a-j);
+   
+   return prod;
+	
+}
+
+
+__float128 factorial_power_quad(__float128 a, int n)
+{
+   __float128 prod=1.0q;
    int j;
    
    for(j=0;j<n;j++) prod=prod*(a-j);
@@ -68,30 +104,24 @@ double power_squaring(double x, int n)
   return p;
 }
 
-/* Std. hypergeometric series, converging rapidly for |z|<0.5, and slowly for |z|<0.8 */
 
-long double hyp2f1_series_long(long double a, long double b, long double c, long double z, long double precision, int SERIES_TERMS_MAX)
+__float128 power_squaring_quad(__float128 x, int n)
 {
-	long double sum_old=0.0L, sum_new=0.0L;
-	int i=0;
+  __float128 p=1.0q;
 
-	//for(i=0;i<=num;i++)	series = series + tgamma(a+i)*tgamma(b+i)/tgamma(c+i)/tgamma(1.0+i)*pow(z,i);
-
-    if(z==0.0L) return 1.0L;
-    
-	do
-	{
-		sum_old=sum_new;
-		sum_new = sum_old + tgammal(a+i)*tgammal(b+i)/tgammal(c+i)/tgammal(1.0+i)*powl(z,i);
-		i++;
-	}
-    while ( ( (precision>0.0L) ? fabsl(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
-
-	return sum_new*tgammal(c)/tgammal(a)/tgammal(b);
+  if(n<0){x=1.0q/x;n=-n;}
+  
+  while(n!=0)
+  {
+    if(n&1) p = p*x;
+    x = x*x;
+    n=n>>1;
+  }
+  
+  return p;
 }
 
-
-
+/* Std. hypergeometric series, converging rapidly for |z|<0.5, and slowly for |z|<0.8 */
 double hyp2f1_series(double a, double b, double c, double z, double precision, int SERIES_TERMS_MAX)
 {
 	double sum_old=0.0, sum_new=0.0;
@@ -106,6 +136,27 @@ double hyp2f1_series(double a, double b, double c, double z, double precision, i
 	{
 		sum_old = sum_new;
 		sum_new = sum_old + pochhammer(a,i)*pochhammer(b,i)/pochhammer(c,i)/tgamma(1.0+i)*pow(z,i);
+		i++;
+	}
+    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+
+	return sum_new;
+}
+
+__float128 hyp2f1_series_quad(__float128 a, __float128 b, __float128 c, __float128 z, __float128 precision, int SERIES_TERMS_MAX)
+{
+	__float128 sum_old=0.0q, sum_new=0.0q;
+	int i=0;
+
+    if(z==0.0q) return 1.0q;
+	if(b==c)  return powq(1.0q-z,-a); 
+	if(a==c)  return powq(1.0q-z,-b); 
+	
+    
+	do
+	{
+		sum_old = sum_new;
+		sum_new = sum_old + pochhammer_quad(a,i)*pochhammer_quad(b,i)/pochhammer_quad(c,i)/tgammaq(1.0q+i)*powq(z,i);
 		i++;
 	}
     while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
@@ -146,6 +197,14 @@ double hyp2f1_reflection4(double a, double b, double c, double z)
 		    tgamma(a+b-c)*tgamma(c)/tgamma(b)/tgamma(a)*hyp2f1_series(c-a,c-b,c-b-a+1.0,1.0-z,0.0,64)*pow(1.0-z,c-a-b);
 }
 
+__float128 hyp2f1_reflection4_quad(__float128 a, __float128 b, __float128 c, __float128 z)
+{
+	
+	return  tgammaq(c-b-a)*tgammaq(c)/tgammaq(c-a)/tgammaq(c-b)*hyp2f1_series_quad(a,b,a+b-c+1.0q,1.0q-z,0.0q,64)
+	       +
+		    tgammaq(a+b-c)*tgammaq(c)/tgammaq(b)/tgammaq(a)*hyp2f1_series_quad(c-a,c-b,c-b-a+1.0q,1.0q-z,0.0q,64)*powq(1.0q-z,c-a-b);
+}
+
 double hyp2f1(double a, double b, double c, double z)
 {
 	if(z<-1.62) 
@@ -181,7 +240,28 @@ double hyp2f1_series_fd(double k, double z, double precision, int SERIES_TERMS_M
 	return sum_new;
 }
 
+__float128 hyp2f1_series_fd_quad(__float128 k, __float128 z, __float128 precision, int SERIES_TERMS_MAX)
+{
+	__float128 sum_old=0.0q, sum_new=0.0q;
+	int i=0;
 
+    if(z==0.0q) return 1.0q;
+	
+    sum_new = 1.0q-(1.0q+k)/(2.0q+k)*0.5q*z;
+	
+	i=2;
+	
+	do
+	{
+		sum_old = sum_new;
+		sum_new = sum_old + (1.0q + k)/(1.0q + k + i)*powq(z,i)*hypfac_quad[i];
+						 
+		i++;
+	}
+    while ( ( (precision>0.0q) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+
+	return sum_new;
+}
 
 /*
 double hyp2f1_series_fd(double k, double z, double precision, int SERIES_TERMS_MAX)
@@ -270,6 +350,24 @@ double hyp2f1_reflection1_fd_long(double k, double z)
 	
 }
 
+
+__float128 hyp2f1_reflection1_fd_quad(__float128 k, __float128 z)
+{
+	__float128 gamma_ratio;
+	
+	
+	if(k<168.0q) 
+		gamma_ratio = tgammaq(2.0q + k)*tgammaq(-1.5q - k);
+	else
+		gamma_ratio = M_PIq/sinq((-1.5q - k)*M_PIq)/sqrtq(k); // this looks sufficient approximation
+	
+
+	return -powq(-z, -1.0q - k)/2.0q/sqrtq(M_PIq)*gamma_ratio 
+	+  2.0q*(1.0q + k)
+	*hyp2f1_series_quad(-0.5q, 1.0q, -0.5q - k, 1.0q/(1.0q - z),0.0q,64)/(3.0q + 2.0q*k)*sqrtq(1.0q - z);
+		
+}
+
 double hyp2f1_reflection2_fd(double k, double z)
 {
 	
@@ -277,12 +375,30 @@ double hyp2f1_reflection2_fd(double k, double z)
 
 }
 
+__float128 hyp2f1_reflection2_fd_quad(__float128 k, __float128 z)
+{
+	
+	return hyp2f1_series_quad(-0.5q,1.0q,2.0q+k,z/(z-1.0q),0.0q,64)*sqrtq(1.0q-z);
+
+}
+
+
 double hyp2f1_reflection4_fd(double k, double z)
 {
 	return  tgamma(0.5)*tgamma(2.0+k)/tgamma(1.5+k)/tgamma(1.0)*hyp2f1_series(0.5,1.0+k,0.5,1.0-z,0.0,64)
 	       +
 		    tgamma(-0.5)*tgamma(2.0+k)/tgamma(1.0+k)/tgamma(0.5)*hyp2f1_series(1.5+k,1.0,1.5,1.0-z,0.0,64)*pow(1.0-z,0.5);
 }
+
+__float128 hyp2f1_reflection4_fd_quad(__float128 k, __float128 z)
+{
+	return  tgammaq(0.5q)*tgammaq(2.0q+k)/tgammaq(1.5q+k)/tgammaq(1.0q)*hyp2f1_series_quad(0.5q,1.0q+k,0.5q,1.0q-z,0.0q,64)
+	       +
+		    tgammaq(-0.5q)*tgammaq(2.0q+k)/tgammaq(1.0q+k)/tgammaq(0.5q)*hyp2f1_series_quad(1.5q+k,1.0q,1.5q,1.0q-z,0.0q,64)*powq(1.0q-z,0.5q);
+}
+
+
+
 
 /* unstable recursion ! use up to k<32 */
 double recursion_half_frac_k(double k, double x)
@@ -301,6 +417,23 @@ double recursion_half_frac_k(double k, double x)
 	return  recursion_half_frac_k_tmp;  
 }
 
+__float128 recursion_half_frac_k_quad(__float128 k, __float128 x)
+{
+	__float128 recursion_half_frac_k_tmp;
+	
+	if(k>-0.5q)
+	  recursion_half_frac_k_tmp = 2.0q*(1.0q+k)/(3.0q+2.0q*k)/x*( recursion_half_frac_k_quad(k-1.0q,x) - powq(1.0q-x,1.5q) );
+    else
+	  if(x<0.0q) 
+			recursion_half_frac_k_tmp =  sqrtq(1.0q - x)/2.0q + asinhq(sqrtq(-x))/(2.0q*sqrtq(-x));
+	  else if (x>0.0 && x<=1.0)
+			recursion_half_frac_k_tmp = sqrtq(1.0q - x)/2.0 + asinq(sqrtq(x))/(2.0q*sqrtq(x));
+	  else  recursion_half_frac_k_tmp = 1.0q;
+	  
+	return  recursion_half_frac_k_tmp;  
+}
+
+
 
 double recursion_int_k(double k, double x)
 {
@@ -313,6 +446,19 @@ double recursion_int_k(double k, double x)
 	  
 	return  recursion_int_k_tmp;  
 }
+
+__float128 recursion_int_k_quad(__float128 k, __float128 x)
+{
+	__float128 recursion_int_k_tmp;
+	
+	if(k>-1.0q)
+	  recursion_int_k_tmp = 2.0q*(1.0q+k)/(3.0q+2.0q*k)/x*( recursion_int_k_quad(k-1.0q,x) - powq(1.0q-x,1.5q) );
+    else
+	  recursion_int_k_tmp = 1.0q;
+	  
+	return  recursion_int_k_tmp;  
+}
+
 
 
 double sommerfeld_leading_term(double k, double x)
@@ -337,6 +483,30 @@ double sommerfeld_leading_term(double k, double x)
 		return hyp2f1_reflection4(-0.5,1.0+k,2.0+k,x);
 	}
 }
+
+__float128 sommerfeld_leading_term_quad(__float128 k, double x)
+{
+	
+	if( (k-floor(k)==0.5q) && (k<=64.0q) && (x<-0.5q) ) //half-frac k=-1/2,1/2,3/2,5/2,...
+		return recursion_half_frac_k_quad(k, x);
+	else if ( (k-floor(k)==0.0q) && (k<=32.0q) && (x<-0.5q) )  //integer k=0,1,2,3,4,5,...
+		return recursion_int_k_quad(k, x);
+	else
+	{
+	
+	if(x<-1.62q) //-1.62
+		return hyp2f1_reflection1_fd_quad(k,x);
+	else if (x<-0.5q) 
+		return hyp2f1_reflection2_fd_quad(k,x);
+		//return hyp2f1_reflection2(-0.5,1.0+k,2.0+k,x);
+	else if (x<0.58q)
+		//return hyp2f1_series(-0.5,1.0+k,2.0+k,x,0.0,64);
+		return hyp2f1_series_fd_quad(k,x,0.0q,64);
+	else
+		return hyp2f1_reflection4_quad(-0.5q,1.0q+k,2.0q+k,x);
+	}
+}
+
 
 /*
 double sommerfeld_leading_term(double k, double z)
@@ -381,6 +551,28 @@ void sommerfeld_leading_term_derivatives(double k, double z, double result[DERIV
        sum = sum + (((j%2)==0) ? -1.0 : 1.0)*pochhammer(-0.5,i-j)*factorial_power(k+i,j-1)/power_squaring(z,j)/power_squaring(z1,i-j);
       sum = sum*s*(1.0+k);
       result[i] = sum + F*(((i%2)==0) ? 1.0 : -1.0)*pochhammer(1.0+k,i)/power_squaring(z,i);
+     }
+
+
+
+}
+
+void sommerfeld_leading_term_derivatives_quad(__float128 k, __float128 z, __float128 result[DERIVATIVE_MATRIX_SIZE])
+{
+	__float128 z1=1.0q-z; 
+    __float128 s = sqrtq(z1);
+    __float128 sum, F = sommerfeld_leading_term_quad(k,z); //Hypergeometric2F1[-0.5,1+k,2+k,z]
+    int i,j;
+
+    result[0]=F;
+
+    for(i=1;i<DERIVATIVE_MATRIX_SIZE;i++)
+     {
+      sum=0.0q;
+      for(j=1;j<=i;j++)
+       sum = sum + (((j%2)==0) ? -1.0q : 1.0q)*pochhammer_quad(-0.5q,i-j)*factorial_power_quad(k+i,j-1)/power_squaring_quad(z,j)/power_squaring_quad(z1,i-j);
+      sum = sum*s*(1.0q+k);
+      result[i] = sum + F*(((i%2)==0) ? 1.0q : -1.0q)*pochhammer_quad(1.0q+k,i)/power_squaring_quad(z,i);
      }
 
 
@@ -434,6 +626,30 @@ double sommerfeld_leading_term_derivatives_m_n(const double k, const double eta,
 
 
 }
+
+__float128 sommerfeld_leading_term_derivatives_m_n_quad(const __float128 k, const __float128 eta, const __float128 theta, const int m, const int n)
+{
+	__float128 z = -0.5q*eta*theta;
+    __float128 z1=1.0q-z; 
+    __float128 s = sqrtq(z1);
+    __float128 S[DERIVATIVE_MATRIX_SIZE];
+    
+
+    //pure theta derivatives 
+	
+    if(m==0)
+    { 
+      sommerfeld_leading_term_derivatives_quad(k,z,S);//FIXME nonsense temporary solution, compute 4 deriv. to return 1  
+      return  S[n]*power_squaring_quad(-0.5q*eta,n)*powq(eta,1.0q+k)/(1.0q+k);
+    }
+    else
+    {
+      return sommerfeld_derivatives_m_n_quad(k, eta,theta, m-1, n);
+    }
+
+
+}
+
 
 double sommerfeld_leading_term_int(double k, double x)
 {
