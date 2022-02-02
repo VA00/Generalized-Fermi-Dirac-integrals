@@ -1,14 +1,14 @@
 /*
+Andrzej Odrzywolek, 2022-02-02, andrzej.odrzywolek@uj.edu.pl
 Compile with e.g:
-gcc speed_test_derivatives.c -o speed_test -lfermidirac fermi_dirac_quadrature.o -lm
+gcc precision_test_derivatives.c -o test -lfermidirac -lquadmath
 Run:
-./example
+./test
 */
 #include <fermidirac.h>
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
-//#include "refVALS/20211030/refVALS_F_20211030.h"
 /*       subroutine dfermi(dk,eta,theta,fd,fdeta,fdtheta, &
                         fdeta2,fdtheta2,fdetadtheta) 
 DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
@@ -19,13 +19,13 @@ double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 int main()
 {
   
-  double k,eta,theta, result;
+  double k,eta,theta;
 
   double ref[4][4];
   double val[4][4];
   
-  double x[13], results[10] = { [ 0 ... 9 ] = -1.0 },FD[4][4];
-  int ii,i,j,m,n;
+  double x[13];
+  int m,n;
   
     FILE  *datafile;
   
