@@ -1,7 +1,7 @@
 fileID = fopen('fermi-dirac.txt','wt');
 k=0;
 theta=4;
-for lg2eta=-20:20
+for lg2eta=-2:2:26 % from -2 step 2 to 26
     fd00=   F(k,2^lg2eta,theta);
     fd01=dF01(k,2^lg2eta,theta);
     fd02=dF02(k,2^lg2eta,theta);
