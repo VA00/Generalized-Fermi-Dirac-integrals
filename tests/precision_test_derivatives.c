@@ -8,96 +8,65 @@ Run:
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
-#include "refVALS/20211030/refVALS_F_20211030.h"
+//#include "refVALS/20211030/refVALS_F_20211030.h"
 /*       subroutine dfermi(dk,eta,theta,fd,fdeta,fdtheta, &
                         fdeta2,fdtheta2,fdetadtheta) 
 DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
 */
-void dfermi_(double *, double *,double *,double *,double *,double *,double *,double *,double *);
+void dfermi_(double *, double *,double *,double *,double *,double *,double *,double *,double *); //FXT dfermi
+double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 
 int main()
 {
   
   double k,eta,theta, result;
 
-  double F, dF_deta, d2F_deta2, 
-		 dF_dtheta, d2F_dtheta2, d2F_deta_dtheta,
-		 d3F_dtheta3, d3F_dtheta2_deta, d3F_dtheta_deta2, d3F_deta3;
-  double fdREF, dFdeta, d2Fdeta2, 
-		 dFdtheta, d2Fdtheta2, d2Fdetadtheta,
-		 d3Fdtheta3, d3Fdtheta2deta, d3Fdthetadeta2, d3Fdeta3;
-
-  double eq3_LHS,eq3_RHS;
+  double ref[4][4];
+  double val[4][4];
+  
   double x[13], results[10] = { [ 0 ... 9 ] = -1.0 },FD[4][4];
-  int ii,i,j;
+  int ii,i,j,m,n;
   
     FILE  *datafile;
   
-  datafile = fopen("refVALS/20211030/refVALS_F_20211030.bin","r");
+  datafile = fopen("refVALS/refTBL_double_2022-02-02.bin","r");
 
   
   if(datafile==NULL){ printf("ERROR: UNABLE TO OPEN FILE\n");return -1;}
   
 
-  for(ii=0;ii<num;ii=ii+1000)
-   {
-	fread(x, 8, 13, datafile);
-
+  while(fread(x, 8, 13, datafile) == 13)
+   {  
     k               = x[0];
 	eta             = x[1];
 	theta           = x[2];
-	fdREF           = x[3];
-    dFdeta          = x[4];
-    d2Fdeta2        = x[5]; 
-    dFdtheta        = x[6]; 
-    d2Fdtheta2      = x[7]; 
-    d2Fdetadtheta   = x[8]; 
-    d3Fdtheta3      = x[9]; 
-    d3Fdtheta2deta  = x[10]; 
-    d3Fdthetadeta2  = x[11]; 
-    d3Fdeta3        = x[12];
+	ref[0][0]       = x[3];
+    ref[0][1]       = x[4];
+    ref[0][2]       = x[5]; 
+    ref[0][3]       = x[6];
+    ref[1][0]       = x[7]; 
+    ref[1][1]       = x[8]; 
+    ref[1][2]       = x[9]; 
+    ref[2][0]       = x[10]; 
+    ref[2][1]       = x[11]; 
+    ref[3][0]       = x[12]; 
     
-   // printf("%.3e %.3e %.3e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,fdREF, dFdeta, d2Fdeta2, dFdtheta, d2Fdtheta2, d2Fdetadtheta, d3Fdtheta3, d3Fdtheta2deta, d3Fdthetadeta2, d3Fdeta3);
-       
+    
 
-       //printf("%lf %lf %lf\n", k, eta, theta);
-       //fixedFfermi_derivatives   (k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta);
-       //fixedFfermi_derivatives_v2(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3, 3);
-       //fixedFfermi_derivatives_v3(k,eta,theta, 0.125, -5.0, 5.0, &F, &dF_deta, &d2F_deta2, &dF_dtheta, &d2F_dtheta2, &d2F_deta_dtheta, &d3F_dtheta3, &d3F_dtheta2_deta, &d3F_dtheta_deta2, &d3F_deta3);
-       //printf("%.3e %.3e %.3e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,F, dF_deta, d2F_deta2, dF_dtheta, d2F_dtheta2, d2F_deta_dtheta, d3F_dtheta3, d3F_dtheta2_deta, d3F_dtheta_deta2, d3F_deta3);
+//       printf("%lf %lf %lf\n", k, eta, theta);
+    for(m=0;m<=3;m++)
+     for(n=0;n<=3;n++)
+      {
+       if(m+n>3) continue;
+       val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
+       //printf("%.3e\t%.3e\n", val[m][n], ref[m][n]); 
+       printf("%.3e\t", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
+  
+      }
+    printf("\n");  
+    
 
-       //Ffermi_dblexp_derivatives(k, eta, theta,128.0*DBL_EPSILON, 4, results);
-       Ffermi_derivatives(k, eta, theta, FD);
-     //  printf("%.3e %.3e %.3e ", k,eta,theta);
-     
-       for(i=0;i<=3;i++)
-         for(j=0;j<=i;j++)
-          printf("FD[%d][%d]=%lf, ", i-j, j, FD[i-j][j]);
-
-       //for(j=0;j<10;j++) printf("%.17e ", results[j]);
-       printf("\n");
-       printf("\n");
-       printf("\n");
-       printf("\n");
-       
-       printf("%.3e %.3e %.3e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e %.17e\n",
-          k,eta,theta,     (F/fdREF-1.0)/DBL_EPSILON, 
-                    (dF_deta/dFdeta-1.0)/DBL_EPSILON,  
-                (d2F_deta2/d2Fdeta2-1.0)/DBL_EPSILON, 
-                (dF_dtheta/dFdtheta-1.0)/DBL_EPSILON, 
-            (d2F_dtheta2/d2Fdtheta2-1.0)/DBL_EPSILON, 
-     (d2F_deta_dtheta/d2Fdetadtheta-1.0)/DBL_EPSILON, 
-            (d3F_dtheta3/d3Fdtheta3-1.0)/DBL_EPSILON, 
-   (d3F_dtheta2_deta/d3Fdtheta2deta-1.0)/DBL_EPSILON, 
-   (d3F_dtheta_deta2/d3Fdthetadeta2-1.0)/DBL_EPSILON, 
-                 (d3Fdeta3/d3Fdeta3-1.0)/DBL_EPSILON);
-       //result = fixedFfermi(k,eta,theta, 0.125, -5.0, 5.0);
-       //result = Ffermi(k,eta,theta);
-       //dfermi_(&k,&eta,&theta, &F, &dF_deta, &dF_dtheta, &d2F_deta2, &d2F_dtheta2, &d2F_deta_dtheta);
-       //printf("%.1lf %.1lf %.1lf %.17e %.17e %.17e %.17e %.17e %.17e\n",k,eta,theta,F, dF_deta, d2F_deta2, dF_dtheta, d2F_dtheta2, d2F_deta_dtheta);
-       printf("\n");
-       //result = quickFfermi2(k,eta,theta);
-   }
+  }
 
   
   
