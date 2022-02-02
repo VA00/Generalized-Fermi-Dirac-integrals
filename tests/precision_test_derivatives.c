@@ -53,14 +53,13 @@ int main()
     
     
 
-//       printf("%lf %lf %lf\n", k, eta, theta);
+    printf("k=%.1lf eta=%.2e theta=%.2e\t", k, eta, theta);
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
       {
        if(m+n>3) continue;
        val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
-       //printf("%.3e\t%.3e\n", val[m][n], ref[m][n]); 
-       printf("%.3e\t", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
+       printf("%.2e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
   
       }
     printf("\n");  
