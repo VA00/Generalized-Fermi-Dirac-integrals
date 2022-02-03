@@ -16,7 +16,7 @@ DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
 void dfermi_(double *, double *,double *,double *,double *,double *,double *,double *,double *); //FXT dfermi
 double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 
-int main()
+int main( int argc, char** argv)
 {
   
   double k,eta,theta;
@@ -26,11 +26,18 @@ int main()
   
   double x[13];
   int m,n;
+  int idx, gong_idx[4][4] = {{0, 2, 5, 9}, {1, 4, 8, -1}, {3, 7, -1, -1}, {6, -1, -1, -1}}; //Gong et. al, Table 1. p. 299, CPC 136 (2001)
   
-    FILE  *datafile;
+  FILE  *datafile;
+  char  *refDATA;
   
-  datafile = fopen("refVALS/refTBL_double_2022-02-02.bin","r");
 
+  if(!(argv[1]==NULL)) 
+   refDATA = argv[1];
+  else
+   refDATA = "refVALS/refTBL_double_2022-02-03.bin";
+  
+  datafile = fopen(refDATA,"r");
   
   if(datafile==NULL){ printf("ERROR: UNABLE TO OPEN FILE\n");return -1;}
   
@@ -51,26 +58,36 @@ int main()
     ref[2][1]       = x[11]; 
     ref[3][0]       = x[12]; 
     
-    
 
-    printf("k=%.1lf eta=%.2e theta=%.2e\t", k, eta, theta);
+
+    printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
       {
        if(m+n>3) continue;
        val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
-       printf("%.2e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
+       printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
   
       }
-    printf("\n");  
-    
+    printf("\t(libfermidirac)\n");  
 
+/*
+    printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
+    for(m=0;m<=3;m++)
+     for(n=0;n<=3;n++)
+      {
+       if(m+n>3) continue;
+       idx = gong_idx[m][n];
+       val[m][n] = dfermi200_(&idx,&k, &eta, &theta);
+       printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
+  
+      }
+    printf("\t(GONG)\n");      
+*/
   }
 
-  
-  
-
   fclose(datafile);
+
   return 0;
 
 }
