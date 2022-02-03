@@ -1,9 +1,9 @@
 /*
 Andrzej Odrzywolek, 2022-02-02, andrzej.odrzywolek@uj.edu.pl
 Compile with e.g:
-gcc precision_test_derivatives.c -o test -lfermidirac -lquadmath
+gcc precision_test_derivatives.c -o test -lfermidirac -lquadmath fedi_cpc.o dfermi200.o -lgfortran -lm
 Run:
-./test
+./test refVALS/refTBL_double_2022-02-03.bin
 */
 #include <fermidirac.h>
 #include <stdio.h>
@@ -14,6 +14,22 @@ Run:
 DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
 */
 void dfermi_(double *, double *,double *,double *,double *,double *,double *,double *,double *); //FXT dfermi
+/*
+Generalized Fermi–Dirac functions and derivatives: properties and evaluation
+Published: 1 June 2001
+|
+Version 1
+|
+DOI:
+10.17632/57tnc6sby7.1
+Contributors: Zhigang Gong, Ladislav Zejda, Werner Däppen, Josep M. Aparicio
+
+DOWNLOAD CODE FROM:
+
+https://elsevier.digitalcommonsdata.com/datasets/57tnc6sby7/1
+
+
+*/
 double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 
 int main( int argc, char** argv)
