@@ -87,9 +87,9 @@ __float128 sigmoid_derivative_polynomial_quad(__float128 s, int i)
   if(i==3) return s*((12.0q - 6.0q*s)*s - 7.0q) + 1.0q;
 
   for(j=0;j<=i-1;j++)
-   sum = sum + eulerian(i,j)*power_squaring(s,j)*power_squaring(s - 1.0,i - j);
+   sum = sum + eulerian(i,j)*power_squaring_quad(s,j)*power_squaring_quad(s - 1.0q,i - j);
 
-  return ((i%2) ? -1.0 : 1.0)*sum;
+  return ((i%2) ? -1.0q : 1.0q)*sum;
 
 }
 

@@ -9,7 +9,7 @@ slow computations.
 #define MAX_REFINE 16 // more than 16 result is significant slow-down
 //#define PRECISION sqrt(DBL_EPSILON) // convergence is exponential, so in theory this is enough
 #define PRECISION_GOAL 8*DBL_EPSILON   // down to 2*DBL_EPSILON seem harmless, 1*DBL_EPSILON cause problems
-#define PRECISION_GOAL_QUAD 128*FLT128_EPSILON   
+#define PRECISION_GOAL_QUAD 8*DBL_EPSILON // 128*FLT128_EPSILON   
 
 #define KAHAN 0 // Enable https://en.wikipedia.org/wiki/Kahan_summation_algorithm ; usually this has no significant effect, but results might be not identical, and computation slow
 #define TGAMMA_MAX 170.62437695630272081244437878577 // FindInstance[LogGamma[k + 1] == Log[2^1024] tgamma overflow
@@ -98,6 +98,7 @@ __float128 pochhammer_quad(__float128, int);
 double factorial_power(double, int);
 double eulerian(int, int);
 double power_squaring(double, int);
+__float128 power_squaring_quad(__float128, int);
 double incomplete_half_fractional_gamma( double, double);
 double zeta1( double, int);
 double zeta2( double, int);
