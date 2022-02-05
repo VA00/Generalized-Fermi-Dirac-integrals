@@ -20,8 +20,8 @@ long double sigmoid_long(long double z)
 
 __float128 sigmoid_quad(__float128 z)
 {
-  //return 1.0q/(1.0q+expq(-z));
-  return 0.5q*tanhq(0.5q*z)+0.5q; //the fastest, clean (no conditionals)
+  return 1.0q/(1.0q+expq(-z));
+  //return 0.5q*tanhq(0.5q*z)+0.5q; //the fastest, clean (no conditionals)
 }
 
 
