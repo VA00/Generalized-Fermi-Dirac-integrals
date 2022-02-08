@@ -51,7 +51,7 @@ int main( int argc, char** argv)
   if(!(argv[1]==NULL)) 
    refDATA = argv[1];
   else
-   refDATA = "refVALS/refTBL_double_2022-02-03.bin";
+   refDATA = "refVALS/refTBL_double_2022-02-08.bin";
   
   datafile = fopen(refDATA,"r");
   
@@ -81,6 +81,7 @@ int main( int argc, char** argv)
      for(n=0;n<=3;n++)
       {
        if(m+n>3) continue;
+       if(theta>DBL_MAX) continue;
        val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
        printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
   
