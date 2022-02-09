@@ -1,6 +1,6 @@
 Andrzej Odrzywołek, andrzej.odrzywolek@uj.edu.pl, 9 Feb 2022
 
-Reference values for generalized relativistic Fermi-Dirac integrals (GFDI) computed by Mathematica 12.3
+Reference arbitrary precision (WorkingPrecision->64) values for generalized relativistic Fermi-Dirac integrals (GFDI) computed by Mathematica 12.3
 on 56-core  dual Intel(R) Xeon(R) Gold 6238R CPU @ 2.20GHz, 376 GB memory. 
 
 k=0
