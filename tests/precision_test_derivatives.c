@@ -3,12 +3,13 @@ Andrzej Odrzywolek, 2022-02-02, andrzej.odrzywolek@uj.edu.pl
 Compile with e.g:
 gcc precision_test_derivatives.c -o test -lfermidirac -lquadmath fedi_cpc.o dfermi200.o -lgfortran -lm
 Run:
-./test refVALS/refTBL_double_2022-02-03.bin
+./test refVALS/refTBL_double_2022-02-09.bin
 */
 #include <fermidirac.h>
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
+#include <quadmath.h>
 /*       subroutine dfermi(dk,eta,theta,fd,fdeta,fdtheta, &
                         fdeta2,fdtheta2,fdetadtheta) 
 DOWNLOAD from: http://cococubed.asu.edu/codes/fermi_dirac/fermi_dirac.tbz
@@ -28,9 +29,13 @@ DOWNLOAD CODE FROM:
 
 https://elsevier.digitalcommonsdata.com/datasets/57tnc6sby7/1
 
+Compile instructions:
+
 
 */
 double dfermi200_(int *, double *,double *,double *); //Gong GFDI
+
+#include "ULP.c"
 
 int main( int argc, char** argv)
 {
@@ -51,7 +56,7 @@ int main( int argc, char** argv)
   if(!(argv[1]==NULL)) 
    refDATA = argv[1];
   else
-   refDATA = "refVALS/refTBL_double_2022-02-08.bin";
+   refDATA = "refVALS/k_slices/0/refTBL_double_2022-02-09.bin";
   
   datafile = fopen(refDATA,"r");
   
@@ -74,7 +79,7 @@ int main( int argc, char** argv)
     ref[2][1]       = x[11]; 
     ref[3][0]       = x[12]; 
     
-
+#if 1
 
     printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
     for(m=0;m<=3;m++)
@@ -83,12 +88,17 @@ int main( int argc, char** argv)
        if(m+n>3) continue;
        if(theta>DBL_MAX) continue;
        val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
-       printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
-  
+       //printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON);
+       printf("%d\t", ULP_distance(ref[m][n], val[m][n], 1024*1024) );  
+       //TODO : print only NON-zero ULP's
       }
     printf("\t(libfermidirac)\n");  
 
-/*
+#endif
+
+
+#if 0
+
     printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
@@ -100,7 +110,9 @@ int main( int argc, char** argv)
   
       }
     printf("\t(GONG)\n");      
-*/
+
+#endif
+
   }
 
   fclose(datafile);
