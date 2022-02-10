@@ -1388,7 +1388,7 @@ double Ffermi_derivatives_m_n(const double k, const double eta, const double the
 {
     /* FIXME: improve initializer to work with 3-rd order derivs, but remain general*/
     //double eta[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0] = 8192.0 };
-    double eta_s[4][4] = {{2048.0, 4096.0, 4096.0, 4096.0},
+    double eta_s[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = {{2048.0, 4096.0, 4096.0, 4096.0},
                          {8192.0,  256.0,   64.0,   64.0},
                          {  64.0,   64.0,   64.0,   64.0},
                          {  64.0,   64.0,   64.0,   64.0}
@@ -1413,7 +1413,7 @@ __float128 Ffermi_derivatives_m_n_quad(const __float128 k, const __float128 eta,
 {
     /* FIXME: improve initializer to work with 3-rd order derivs, but remain general*/
     //double eta[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = { [0][0] = 8192.0 };
-    __float128 eta_s[4][4] = {{2048.0q, 4096.0q, 4096.0q, 4096.0q},
+    __float128 eta_s[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE] = {{2048.0q, 4096.0q, 4096.0q, 4096.0q},
                               {8192.0q,  256.0q,   64.0q,   64.0q},
                               {  64.0q,   64.0q,   64.0q,   64.0q},
                               {  64.0q,   64.0q,   64.0q,   64.0q}
