@@ -32,12 +32,13 @@ AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt, nan, tgamma])
+AC_CHECK_LIB([quadmath], [sqrtq, tgammaq])
 # Checks for library functions.
 AC_CHECK_FUNCS([sqrt nan tgamma])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h])
+AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h quadmath.h])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
