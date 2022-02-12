@@ -46,7 +46,7 @@ int main( int argc, char** argv)
   double val[4][4];
   
   double x[13];
-  int m,n;
+  int m,n,ULP_test, failed_count, count;
   int idx, gong_idx[4][4] = {{0, 2, 5, 9}, {1, 4, 8, -1}, {3, 7, -1, -1}, {6, -1, -1, -1}}; //Gong et. al, Table 1. p. 299, CPC 136 (2001)
   
   FILE  *datafile;
@@ -62,9 +62,13 @@ int main( int argc, char** argv)
   
   if(datafile==NULL){ printf("ERROR: UNABLE TO OPEN FILE\n");return -1;}
   
+  printf("Testing started. Perfect results (10 x 0 ULPs) are NOT printed, except the first\n");
+  count=0;
+  failed_count = 0;
 
   while(fread(x, 8, 13, datafile) == 13)
    {  
+    count++;
     k               = x[0];
 	eta             = x[1];
 	theta           = x[2];
@@ -79,42 +83,39 @@ int main( int argc, char** argv)
     ref[2][1]       = x[11]; 
     ref[3][0]       = x[12]; 
     
-#if 1
 
-    printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
+    ULP_test=0;
+
     for(m=0;m<=3;m++)
      for(n=0;n<=3;n++)
       {
        if(m+n>3) continue;
        if(theta>DBL_MAX) continue;
-       val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
-       //printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON);
-       printf("%d\t", ULP_distance(ref[m][n], val[m][n], 1024*1024) );  
-       //TODO : print only NON-zero ULP's
-      }
-    printf("\t(libfermidirac)\n");  
-
-#endif
-
-
-#if 0
-
-    printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
-    for(m=0;m<=3;m++)
-     for(n=0;n<=3;n++)
-      {
-       if(m+n>3) continue;
+       //val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
        idx = gong_idx[m][n];
        val[m][n] = dfermi200_(&idx,&k, &eta, &theta);
-       printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON); 
-  
+       ULP_test = ULP_test + ULP_distance(ref[m][n], val[m][n], 1024*1024);
       }
-    printf("\t(GONG)\n");      
-
-#endif
+    
+    if(ULP_test>100 || count==1)
+     {
+      failed_count++;
+      printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
+      for(m=0;m<=3;m++)
+       for(n=0;n<=3;n++)
+        {
+         if(m+n>3) continue;
+         if(theta>DBL_MAX) continue;
+         //printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON);
+         printf("%d\t", ULP_distance(ref[m][n], val[m][n], 1024*1024) );  
+        }
+      printf("\t(libfermidirac)\n"); 
+      //printf("\t(GONG)\n");   
+     }
 
   }
 
+  printf("Tested:\t%d\tFailed:%d\n", count,failed_count);
   fclose(datafile);
 
   return 0;
