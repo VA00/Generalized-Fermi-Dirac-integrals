@@ -56,7 +56,7 @@ int main( int argc, char** argv)
   if(!(argv[1]==NULL)) 
    refDATA = argv[1];
   else
-   refDATA = "refVALS/k_slices/0/refTBL_double_2022-02-09.bin";
+   refDATA = "refVALS/k_slices/0.5/refTBL_double_2022-02-14.bin";
   
   datafile = fopen(refDATA,"r");
   
