@@ -63,6 +63,7 @@ int main( int argc, char** argv)
   if(datafile==NULL){ printf("ERROR: UNABLE TO OPEN FILE\n");return -1;}
   
   printf("Testing started. Perfect results (10 x 0 ULPs) are NOT printed, except the first\n");
+  printf("F\tdF dtheta\td2F dtheta2\td3F dtheta3\tdF deta\td2F deta dtheta\t d3F deta dtheta2\td2D deta2\td3F deta^2 dtheta\td^3F deta^3\n");
   count=0;
   failed_count = 0;
 
@@ -91,9 +92,8 @@ int main( int argc, char** argv)
       {
        if(m+n>3) continue;
        if(theta>DBL_MAX) continue;
-       //val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
-       idx = gong_idx[m][n];
-       val[m][n] = dfermi200_(&idx,&k, &eta, &theta);
+       val[m][n] = Ffermi_derivatives_m_n_quad(k,eta,theta,m,n); 
+
        ULP_test = ULP_test + ULP_distance(ref[m][n], val[m][n], 1024*1024);
       }
     
@@ -110,7 +110,18 @@ int main( int argc, char** argv)
          printf("%d\t", ULP_distance(ref[m][n], val[m][n], 1024*1024) );  
         }
       printf("\t(libfermidirac)\n"); 
-      //printf("\t(GONG)\n");   
+      printf("k=% .1lf eta=% .2e theta=%.2e\t", k, eta, theta);
+      for(m=0;m<=3;m++)
+       for(n=0;n<=3;n++)
+        {
+         if(m+n>3) continue;
+         if(theta>DBL_MAX) continue;
+         idx = gong_idx[m][n];
+         val[m][n] = dfermi200_(&idx,&k, &eta, &theta);
+         //printf("% .1e ", (val[m][n]/ref[m][n]-1.0)/DBL_EPSILON);
+         printf("%d\t", ULP_distance(ref[m][n], val[m][n], 1024*1024) );  
+        }
+      printf("\t(GONG)\n\n");   
      }
 
   }
