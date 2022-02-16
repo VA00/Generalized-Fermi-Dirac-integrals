@@ -26,7 +26,7 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 
 /* f(z) = z^k * sqrt(1+0.5*theta*z) / (1 + exp(z-eta)) */
 int
-f_generalized_relativistic_fermi_dirac(acb_ptr res, const acb_t z, void * param, slong order, slong prec)
+f_generalized_relativistic_fermi_dirac_integrand(acb_ptr res, const acb_t z, void * param, slong order, slong prec)
 {
     acb_t t,sigmoid, sqrt_term;
     acb_t k, eta, theta;
@@ -35,9 +35,9 @@ f_generalized_relativistic_fermi_dirac(acb_ptr res, const acb_t z, void * param,
     acb_init(eta);
     acb_init(theta);
 
-    acb_set_d(k,0.5);    // k=0.5
-    acb_set_d(eta, 2097152);  // eta = 2^21
-    acb_set_d(theta,3.1082702275611665134711390509176302506278509424834232340028998555822468563283335970816e85);  // theta=2^285  ; divided by 2 in advance
+    acb_set_d(k, 0.5);    // k=0.5
+    acb_set_d(eta, pow(2,22));   // eta = 2^22
+    acb_set_d(theta,pow(2,-50-1));  // theta=2^-50  ; divided by 2 in advance
 
     if (order > 1)
         flint_abort();  /* Would be needed for Taylor method. */
@@ -121,17 +121,17 @@ int main(int argc, char *argv[])
     if (goal < 0) abort();
 
     /* error bound (N+1) exp(-N) when truncated at N */
-    N = goal + FLINT_BIT_COUNT(goal)+2097152; // eta added !!!!!
+    N = goal + FLINT_BIT_COUNT(goal)+pow(2,22); // eta added !!!!!
     acb_zero(a);
     acb_set_ui(b, N);
-    acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac, NULL, a, b, goal, tol, options, prec);
+    acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, NULL, a, b, goal, tol, options, prec);
     acb_neg(b, b);
     acb_exp(b, b, prec);
     acb_mul_ui(b, b, N + 1, prec);
     arb_add_error(acb_realref(s), acb_realref(b));
     flint_printf("I = ");
     acb_printn(s, 3.333 * prec, 0);
-    flint_printf("\n\n");
+    flint_printf("\n");
 
     acb_clear(a);
     acb_clear(b);
