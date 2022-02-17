@@ -130,13 +130,13 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
     acb_zero(a);
     acb_set_ui(b, N);
     acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, goal, tol, options, prec);
-    acb_neg(b, b);
-    acb_exp(b, b, prec);
-    acb_mul_ui(b, b, N + 1, prec);
-    arb_add_error(acb_realref(s), acb_realref(b));
-    flint_printf("I = ");
-    acb_printn(s, 3.333 * prec, 0);
-    flint_printf("\n");
+    //acb_neg(b, b);
+    //acb_exp(b, b, prec);
+    //acb_mul_ui(b, b, N + 1, prec);
+    //arb_add_error(acb_realref(s), acb_realref(b));
+    //flint_printf("I = ");
+    //acb_printn(s, 3.333 * prec, 0);
+    //flint_printf("\n");
 
     acb_clear(a);
     acb_clear(b);
@@ -153,6 +153,8 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
 
 int main(int argc, char *argv[])
 {
+    
+#if 0
     acb_t s, t, a, b;
     mag_t tol;
     slong prec, goal;
@@ -209,15 +211,18 @@ int main(int argc, char *argv[])
     mag_clear(tol);
 
     flint_cleanup();
+#endif 
 
-    acb_init(s);
-    Ffermi_derivatives_m_n_arb(s, 0.5, pow(2,22), pow(2,-50), 0, 0);    
+    acb_t fd_arb;
+    acb_init(fd_arb);
+
+    Ffermi_derivatives_m_n_arb(fd_arb, 0.5, pow(2,22), pow(2,-50), 0, 0);    
     
     printf("\n");
-    acb_printn(s, 3.333 * prec, 0);
+    acb_printn(fd_arb, 64, 0);
     printf("\n");
 
-    acb_clear(s);
+    acb_clear(fd_arb);
 
     return 0;
 }
