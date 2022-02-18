@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   acb_printn(fd_arb, 128, 0);printf("\n");
   
   fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, powq(2,i), powq(2,j), 0, 0);
-  printf("\nlibfermidirac=%.18e",  fd_quad);     
+  printf("libfermidirac=%.18e",  fd_quad);     
   printf("\n\n");
 
 
