@@ -15,12 +15,9 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 */
 
 #include <string.h>
-#include "flint/profiler.h"
-//#include "arb_hypgeom.h"
-//#include "acb_hypgeom.h"
-//#include "acb_dirichlet.h"
-//#include "acb_modular.h"
-#include "acb_calc.h"
+#include <acb_calc.h>
+#include <fermidirac.h>
+#include <quadmath.h>
 
 
 
@@ -89,63 +86,42 @@ int f_generalized_relativistic_fermi_dirac_integrand(acb_ptr res, const acb_t z,
 
 void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const double theta, const int m, const int n)
 {
+  acb_t a, b;
+  mag_t tol;
+  slong prec;
+  slong N;
+  double input_parameters[3]={k, eta, theta};
 
-    acb_t t, a, b;
-    mag_t tol;
-    slong prec, goal;
-    slong N;
-    //ulong k;
-    int ifrom, ito;
-    int i, twice, havegoal, havetol;
-    acb_calc_integrate_opt_t options;
+  acb_calc_integrate_opt_t options;
+  acb_calc_integrate_opt_init(options);
 
-    ifrom = ito = -1;
+  prec = 128;
 
-
-    acb_calc_integrate_opt_init(options);
-
-    prec = 128;
-    twice = 0;
-    goal = 0;
-    havetol = havegoal = 0;
-    double input_parameters[3]={k, eta, theta};
-
-    acb_init(a);
-    acb_init(b);
-    //acb_init(s);
-    acb_init(t);
-    mag_init(tol);
-
-    if (!havegoal)
-        goal = prec;
-
-    if (!havetol)
-        mag_set_ui_2exp_si(tol, 1, -prec);
-
+  acb_init(a);
+  acb_init(b);
+  mag_init(tol);
  
-    if (goal < 0) abort();
+  mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
 
-    /* error bound (N+1) exp(-N) when truncated at N */
-    N = goal + FLINT_BIT_COUNT(goal)+pow(2,22); // eta added !!!!!
-    acb_zero(a);
-    acb_set_ui(b, N);
-    acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, goal, tol, options, prec);
-    //acb_neg(b, b);
-    //acb_exp(b, b, prec);
-    //acb_mul_ui(b, b, N + 1, prec);
-    //arb_add_error(acb_realref(s), acb_realref(b));
-    //flint_printf("I = ");
-    //acb_printn(s, 3.333 * prec, 0);
-    //flint_printf("\n");
+  /* error bound (N+1) exp(-N) when truncated at N */
+  /*
 
-    acb_clear(a);
-    acb_clear(b);
-    //acb_clear(s);
-    acb_clear(t);
-    mag_clear(tol);
+  FIXME: N overflow for eta>63 !!!! Replace with something bigger
 
-    flint_cleanup();
+  */
+  N = prec + FLINT_BIT_COUNT(prec)+eta; // eta added !!!!!
+  flint_printf("N = %wd \n",N);
+  flint_printf("MIN = %wd \n",WORD_MIN);
+  flint_printf("MAX = %wd \n",WORD_MAX);
+  flint_printf("MAX = %wu \n",UWORD_MAX);
+  acb_zero(a);
+  acb_set_ui(b, N);
+  acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, prec, tol, options, prec);
 
+  acb_clear(a);
+  acb_clear(b);
+  mag_clear(tol);
+  flint_cleanup();
 }
 
 
@@ -153,76 +129,45 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
 
 int main(int argc, char *argv[])
 {
-    
-#if 0
-    acb_t s, t, a, b;
-    mag_t tol;
-    slong prec, goal;
-    slong N;
-    //ulong k;
-    int ifrom, ito;
-    int i, twice, havegoal, havetol;
-    acb_calc_integrate_opt_t options;
+  double fd_quad;
+  acb_t fd_arb, fd;
+  acb_init(fd_arb);
+  acb_init(fd);
+  int i,j;
+  
 
-    ifrom = ito = -1;
+    flint_printf("Computed with arb-%s\n", arb_version);
 
+  for(i=62;i<=65;i=i+1)
+    for(j=0;j<=0;j=j+1)
+     {
 
-    acb_calc_integrate_opt_init(options);
+  Ffermi_derivatives_m_n_arb(fd_arb, 0.5, pow(2,i), pow(2,j), 0, 0);    
+  
 
-    prec = 128;
-    twice = 0;
-    goal = 0;
-    havetol = havegoal = 0;
-    double input_parameters[3]={0.5,pow(2,22),pow(2.0,-50)};
-
-    acb_init(a);
-    acb_init(b);
-    acb_init(s);
-    acb_init(t);
-    mag_init(tol);
-
-    if (!havegoal)
-        goal = prec;
-
-    if (!havetol)
-        mag_set_ui_2exp_si(tol, 1, -prec);
-
- 
-    if (goal < 0) abort();
-
-    /* error bound (N+1) exp(-N) when truncated at N */
-    N = goal + FLINT_BIT_COUNT(goal)+pow(2,22); // eta added !!!!!
-    acb_zero(a);
-    acb_set_ui(b, N);
-    acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, goal, tol, options, prec);
-    acb_neg(b, b);
-    acb_exp(b, b, prec);
-    acb_mul_ui(b, b, N + 1, prec);
-    arb_add_error(acb_realref(s), acb_realref(b));
-    flint_printf("I = ");
-    acb_printn(s, 3.333 * prec, 0);
-    flint_printf("\n");
+  printf("\nArb=\t");
+  //acb_print(fd_arb);printf("\n");
+  //acb_printd(fd_arb, 128);printf("\n");
+  acb_printn(fd_arb, 128, 0);printf("\n");
+  
+  fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, powq(2,i), powq(2,j), 0, 0);
+  printf("\nlibfermidirac=%.18e",  fd_quad);     
+  printf("\n\n");
 
 
-    acb_clear(a);
-    acb_clear(b);
-    acb_clear(s);
-    acb_clear(t);
-    mag_clear(tol);
+  acb_set_d(fd, fd_quad);
 
-    flint_cleanup();
-#endif 
+  acb_div(fd, fd, fd_arb, 128);
+  acb_add_si(fd, fd, -1, 128);
 
-    acb_t fd_arb;
-    acb_init(fd_arb);
+  printf("%d\t%d\t",i,j); 
+  acb_printn(fd, 128, 0);
+  printf("\n------------------------------------------------------------------------------\n\n");
 
-    Ffermi_derivatives_m_n_arb(fd_arb, 0.5, pow(2,22), pow(2,-50), 0, 0);    
-    
-    printf("\n");
-    acb_printn(fd_arb, 64, 0);
-    printf("\n");
+  acb_clear(fd_arb);
+  acb_clear(fd);
 
-    acb_clear(fd_arb);
+     }
 
-    return 0;
+  return 0;
 }
