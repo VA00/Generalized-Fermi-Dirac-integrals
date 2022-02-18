@@ -89,7 +89,8 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   acb_t a, b;
   mag_t tol;
   slong prec;
-  slong N;
+  //slong N;
+  double N;
   double input_parameters[3]={k, eta, theta};
 
   acb_calc_integrate_opt_t options;
@@ -104,18 +105,14 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
 
   /* error bound (N+1) exp(-N) when truncated at N */
-  /*
-
-  FIXME: N overflow for eta>63 !!!! Replace with something bigger
-
-  */
   N = prec + FLINT_BIT_COUNT(prec)+eta; // eta added !!!!!
-  flint_printf("N = %wd \n",N);
-  flint_printf("MIN = %wd \n",WORD_MIN);
-  flint_printf("MAX = %wd \n",WORD_MAX);
-  flint_printf("MAX = %wu \n",UWORD_MAX);
+  //flint_printf("N = %wd \n",N);
+  //flint_printf("MIN = %wd \n",WORD_MIN);
+  //flint_printf("MAX = %wd \n",WORD_MAX);
+  //flint_printf("MAX = %wu \n",UWORD_MAX);
   acb_zero(a);
-  acb_set_ui(b, N);
+  //acb_set_ui(b, N);
+  acb_set_d(b, N);
   acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, prec, tol, options, prec);
 
   acb_clear(a);
