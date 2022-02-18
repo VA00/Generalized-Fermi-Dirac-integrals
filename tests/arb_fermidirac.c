@@ -16,6 +16,8 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 
 #include <string.h>
 #include <acb_calc.h>
+#include <arb.h>
+//#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
 #include <fermidirac.h>
 #include <quadmath.h>
 
@@ -105,7 +107,7 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
 
   /* error bound (N+1) exp(-N) when truncated at N */
-  N = prec + FLINT_BIT_COUNT(prec)+eta; // eta added !!!!!
+  N = prec + FLINT_BIT_COUNT(prec)+fmax(eta,0.0); // eta added !!!!!
   //flint_printf("N = %wd \n",N);
   //flint_printf("MIN = %wd \n",WORD_MIN);
   //flint_printf("MAX = %wd \n",WORD_MAX);
@@ -128,43 +130,61 @@ int main(int argc, char *argv[])
 {
   double fd_quad;
   acb_t fd_arb, fd;
+  arb_t rel_err, MachineEpsilon;
+
+  int i,j, sign;
+  //di_t interval; Require the most recent Arb, I'm unable to install it A.O. 
+  
+
+  flint_printf("Computed with arb-%s\n", arb_version);
+
   acb_init(fd_arb);
   acb_init(fd);
-  int i,j;
-  
+  arb_init(rel_err);
+  arb_init(MachineEpsilon);
+  arb_one(MachineEpsilon);
+  arb_mul_2exp_si(MachineEpsilon, MachineEpsilon, -52); 
 
-    flint_printf("Computed with arb-%s\n", arb_version);
-
-  for(i=62;i<=65;i=i+1)
-    for(j=0;j<=0;j=j+1)
+  for(sign=-1;sign<=1;sign=sign+2)
+   for(i=-1022;i<=1024;i=i+66)
+    for(j=-1022;j<=1024;j=j+66)
      {
 
-  Ffermi_derivatives_m_n_arb(fd_arb, 0.5, pow(2,i), pow(2,j), 0, 0);    
-  
+       Ffermi_derivatives_m_n_arb(fd_arb, 0.5, sign*pow(2,i), pow(2,j), 0, 0);    
+       
+       fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, sign*powq(2,i), powq(2,j), 0, 0);
+     
+       acb_set_d(fd, fd_quad);
+     
+       acb_div(fd, fd, fd_arb, 128);
+       acb_add_si(fd, fd, -1, 128);
+     
 
-  printf("\nArb=\t");
-  //acb_print(fd_arb);printf("\n");
-  //acb_printd(fd_arb, 128);printf("\n");
-  acb_printn(fd_arb, 128, 0);printf("\n");
-  
-  fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, powq(2,i), powq(2,j), 0, 0);
-  printf("libfermidirac=%.18e",  fd_quad);     
-  printf("\n\n");
+     
+       acb_abs(rel_err, fd, 128);
+       if( arb_ge(rel_err, MachineEpsilon) )
+       {
+       printf("\nArb=\t");
+       //acb_print(fd_arb);printf("\n");
+       //acb_printd(fd_arb, 128);printf("\n");
+       acb_printn(fd_arb, 128, 0);printf("\n");
+       printf("libfermidirac=%.18e",  fd_quad);     
+       printf("\n\n");
+     
+       printf("%d %d\t%d\t",sign,i,j); 
+       arb_printn(rel_err, 128, 0);
+       //arb_printn(MachineEpsilon, 128, 0);
+       printf("\n------------------------------------------------------------------------------\n\n");
+       }
 
 
-  acb_set_d(fd, fd_quad);
 
-  acb_div(fd, fd, fd_arb, 128);
-  acb_add_si(fd, fd, -1, 128);
-
-  printf("%d\t%d\t",i,j); 
-  acb_printn(fd, 128, 0);
-  printf("\n------------------------------------------------------------------------------\n\n");
+     }
 
   acb_clear(fd_arb);
   acb_clear(fd);
-
-     }
+  arb_clear(rel_err);
+  arb_clear(MachineEpsilon);
 
   return 0;
 }
