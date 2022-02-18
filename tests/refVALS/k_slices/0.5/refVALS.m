@@ -26,7 +26,7 @@ F[k_, \[Eta]_, \[Theta]_, m_, n_] := Module[{integrand, f, x},
 (* MAIN reference values generator. Beware of Mathematica BUGS !!!!! *)
 (* kTBL = Join[{-1/2, 0}, Table[2^i, {i, -1, 6}]];*)
 delta=3;
-kTBL={1};
+kTBL={1/2};
 \[Theta]TBL = Join[{0}, Table[2^i, {i, -1022, 1024, delta}]]; (* MIN -1022 replaced by -1 *)
 (* \[Theta]TBL = {1}; *)
 \[Eta]TBL = 
