@@ -125,12 +125,16 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
 
 double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, const double theta, const int m, const int n)
 {
+  acb_t s;
+  double result; //input_parameters[3]={k, eta, theta}
+
+#if 0
   acb_t a, b, s;
   mag_t tol;
   slong prec;
   //slong N;
   double N;
-  double input_parameters[3]={k, eta, theta}, result;
+  
 
   acb_calc_integrate_opt_t options;
   acb_calc_integrate_opt_init(options);
@@ -159,6 +163,10 @@ double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, con
   acb_clear(b);
   mag_clear(tol);
   flint_cleanup();
+#endif
+  
+  acb_init(s);
+  Ffermi_derivatives_m_n_arb(s, k, eta, theta, 0, 0);
   
   //double output
   arf_t t;
@@ -171,6 +179,7 @@ double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, con
   result = arf_get_d(t, ARF_RND_NEAR);
   arf_clear(t);
   arb_clear(res);
+  acb_clear(s);
   
 
   
