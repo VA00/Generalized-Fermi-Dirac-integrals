@@ -123,16 +123,68 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   flint_cleanup();
 }
 
+double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, const double theta, const int m, const int n)
+{
+  acb_t a, b, s;
+  mag_t tol;
+  slong prec;
+  //slong N;
+  double N;
+  double input_parameters[3]={k, eta, theta}, result;
 
+  acb_calc_integrate_opt_t options;
+  acb_calc_integrate_opt_init(options);
+
+  prec = 128;
+
+  acb_init(a);
+  acb_init(b);
+  mag_init(tol);
+  acb_init(s);
+ 
+  mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
+
+  /* error bound (N+1) exp(-N) when truncated at N */
+  N = prec + FLINT_BIT_COUNT(prec)+fmax(eta,0.0); // eta added only for eta>>0 !!!!!
+  //flint_printf("N = %wd \n",N);
+  //flint_printf("MIN = %wd \n",WORD_MIN);
+  //flint_printf("MAX = %wd \n",WORD_MAX);
+  //flint_printf("MAX = %wu \n",UWORD_MAX);
+  acb_zero(a);
+  //acb_set_ui(b, N);
+  acb_set_d(b, N);
+  acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, prec, tol, options, prec);
+
+  acb_clear(a);
+  acb_clear(b);
+  mag_clear(tol);
+  flint_cleanup();
+  
+  //double output
+  arf_t t;
+  arf_init(t);
+  arb_t res;
+  arb_init(res);
+  
+  acb_abs(res, s, 128);
+  arb_get_lbound_arf(t, res, 64);
+  result = arf_get_d(t, ARF_RND_NEAR);
+  arf_clear(t);
+  arb_clear(res);
+  
+
+  
+  return result;
+}
 
 
 int main(int argc, char *argv[])
 {
-  double fd_quad;
+  double fd_quad,fd_double;
   acb_t fd_arb, fd;
-  arb_t rel_err, MachineEpsilon;
+  arb_t fd_real, rel_err, MachineEpsilon, MaxMachineNumber, MinMachineNumber;
 
-  int i,j, sign;
+  int i,j, sign, counter=0, underflow=0, overflow=0, failed=0;
   //di_t interval; Require the most recent Arb, I'm unable to install it A.O. 
   
 
@@ -140,30 +192,45 @@ int main(int argc, char *argv[])
 
   acb_init(fd_arb);
   acb_init(fd);
+  arb_init(fd_real);
   arb_init(rel_err);
   arb_init(MachineEpsilon);
   arb_one(MachineEpsilon);
   arb_mul_2exp_si(MachineEpsilon, MachineEpsilon, -52); 
+  arb_init(MaxMachineNumber);
+  arb_one(MaxMachineNumber);
+  arb_mul_2exp_si(MaxMachineNumber, MaxMachineNumber, 1024); 
+  arb_init(MinMachineNumber);
+  arb_one(MinMachineNumber);
+  arb_mul_2exp_si(MinMachineNumber, MinMachineNumber, -1022); 
+
 
   for(sign=-1;sign<=1;sign=sign+2)
-   for(i=-1022;i<=1024;i=i+66)
-    for(j=-1022;j<=1024;j=j+66)
+   for(i=-1022;i<=1024;i=i+22)
+    for(j=-1022;j<=1024;j=j+22)
      {
+       counter++; 
+       if(!(counter%100))   printf("Total tested = %d, overflow=%d, underflow=%d, failed=%d\n",counter, overflow, underflow, failed); 
+       Ffermi_derivatives_m_n_arb(fd_arb, 0.5, sign*pow(2,i), pow(2,j), 0, 0);   
+       acb_abs(fd_real,fd_arb, 128); 
+       if( arb_ge(fd_real, MaxMachineNumber) ){ overflow++;continue;}      
+       if( arb_le(fd_real, MinMachineNumber) ){ underflow++;continue;}      
 
-       Ffermi_derivatives_m_n_arb(fd_arb, 0.5, sign*pow(2,i), pow(2,j), 0, 0);    
-       
        fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, sign*powq(2,i), powq(2,j), 0, 0);
+       //fd_double = Ffermi_derivatives_m_n_internal_arb(0.5, sign*pow(2,i), pow(2,j), 0, 0);   
+       //fd_quad = Ffermi_derivatives_m_n(0.5, sign*pow(2,i), pow(2,j), 0, 0);
+
+       //printf("%e\n", fd_quad/fd_double-1.0);
      
        acb_set_d(fd, fd_quad);
      
        acb_div(fd, fd, fd_arb, 128);
        acb_add_si(fd, fd, -1, 128);
-     
-
-     
        acb_abs(rel_err, fd, 128);
+
        if( arb_ge(rel_err, MachineEpsilon) )
        {
+       failed++;
        printf("\nArb=\t");
        //acb_print(fd_arb);printf("\n");
        //acb_printd(fd_arb, 128);printf("\n");
@@ -178,13 +245,16 @@ int main(int argc, char *argv[])
        }
 
 
-
      }
+
 
   acb_clear(fd_arb);
   acb_clear(fd);
+  arb_clear(fd_real);
   arb_clear(rel_err);
   arb_clear(MachineEpsilon);
+  arb_clear(MaxMachineNumber);
+  arb_clear(MinMachineNumber);
 
   return 0;
 }
