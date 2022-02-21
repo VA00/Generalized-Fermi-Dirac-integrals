@@ -126,47 +126,10 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
 double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, const double theta, const int m, const int n)
 {
   acb_t s;
-  double result; //input_parameters[3]={k, eta, theta}
-
-#if 0
-  acb_t a, b, s;
-  mag_t tol;
-  slong prec;
-  //slong N;
-  double N;
-  
-
-  acb_calc_integrate_opt_t options;
-  acb_calc_integrate_opt_init(options);
-
-  prec = 128;
-
-  acb_init(a);
-  acb_init(b);
-  mag_init(tol);
-  acb_init(s);
- 
-  mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
-
-  /* error bound (N+1) exp(-N) when truncated at N */
-  N = prec + FLINT_BIT_COUNT(prec)+fmax(eta,0.0); // eta added only for eta>>0 !!!!!
-  //flint_printf("N = %wd \n",N);
-  //flint_printf("MIN = %wd \n",WORD_MIN);
-  //flint_printf("MAX = %wd \n",WORD_MAX);
-  //flint_printf("MAX = %wu \n",UWORD_MAX);
-  acb_zero(a);
-  //acb_set_ui(b, N);
-  acb_set_d(b, N);
-  acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, prec, tol, options, prec);
-
-  acb_clear(a);
-  acb_clear(b);
-  mag_clear(tol);
-  flint_cleanup();
-#endif
+  double result;
   
   acb_init(s);
-  Ffermi_derivatives_m_n_arb(s, k, eta, theta, 0, 0);
+  Ffermi_derivatives_m_n_arb(s, k, eta, theta, m, n);
   
   //double output
   arf_t t;
@@ -180,8 +143,6 @@ double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, con
   arf_clear(t);
   arb_clear(res);
   acb_clear(s);
-  
-
   
   return result;
 }
