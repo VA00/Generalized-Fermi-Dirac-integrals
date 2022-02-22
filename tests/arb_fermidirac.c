@@ -214,11 +214,14 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   double cutoff;
   //double input_parameters[3]={k, eta, theta};
   double input_parameters[5]={k, eta, theta, (double) m, (double) n};
+  int fail;
 
   acb_calc_integrate_opt_t options;
   acb_calc_integrate_opt_init(options);
 
-  prec = 128;
+  options->verbose=0;
+
+  prec = 256;
 
   acb_init(a);
   acb_init(b);
@@ -236,7 +239,50 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   //acb_set_ui(b, N);
   acb_set_d(b, cutoff);
   //acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand, input_parameters, a, b, prec, tol, options, prec);
-  acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand_m_n, input_parameters, a, b, prec, tol, options, prec);
+  fail = acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand_m_n, input_parameters, a, b, prec, tol, options, prec);
+  if(fail==ARB_CALC_NO_CONVERGENCE) printf("\nArb integration failed!\n");
+  
+
+  acb_clear(a);
+  acb_clear(b);
+  mag_clear(tol);
+  flint_cleanup();
+}
+
+
+void Ffermi_derivatives_m_n_arb_v2(acb_t s, const double k, const double eta, const double theta, const int m, const int n)
+{
+  acb_t a, b;
+  mag_t tol;
+  slong prec;
+  
+  double input_parameters[5]={k, eta, theta, (double) m, (double) n};
+  int fail;
+  double cutoff;
+
+  acb_calc_integrate_opt_t options;
+  acb_calc_integrate_opt_init(options);
+
+  options->verbose=0;
+
+  prec = 128;
+
+  acb_init(a);
+  acb_init(b);
+  mag_init(tol);
+  mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
+
+  acb_zero(a);
+  //cutoff = prec + FLINT_BIT_COUNT(prec)+fmax(eta,0.0); // eta added !!!!!
+  acb_set_d(b,  fmax(eta,0.0) );
+  //acb_set_d(b,  cutoff);
+  acb_add_ui(b,b,prec,prec);
+  acb_add_ui(b,b,FLINT_BIT_COUNT(prec),prec);
+
+  fail = acb_calc_integrate(s, f_generalized_relativistic_fermi_dirac_integrand_m_n, input_parameters, a, b, prec, tol, options, prec);
+  if(fail==ARB_CALC_NO_CONVERGENCE) printf("\nArb integration failed!\n");
+
+
 
   acb_clear(a);
   acb_clear(b);
@@ -301,12 +347,12 @@ for(m=0;m<=3;m++)
   if(m+n>3) continue; 
   printf("Testing derivative %d%d\n\n",m,n);
   for(sign=-1;sign<=1;sign=sign+2)
-   for(i=-22;i<=22;i=i+2)
-    for(j=-22;j<=22;j=j+2)
+   for(i=-64;i<=64;i=i+4)
+    for(j=-64;j<=64;j=j+4)
      {
        counter++; 
-       if(!(counter%1))   printf("Total tested = %d, overflow=%d, underflow=%d, failed=%d\n",counter, overflow, underflow, failed); 
-       Ffermi_derivatives_m_n_arb(fd_arb, 0.5, sign*pow(2,i), pow(2,j), m, n);   
+       if(!(counter%1024))   printf("Total tested = %d, overflow=%d, underflow=%d, failed=%d\n",counter, overflow, underflow, failed); 
+       if(sign>0) Ffermi_derivatives_m_n_arb_v2(fd_arb, 0.5, sign*pow(2,i), pow(2,j), m, n);   else Ffermi_derivatives_m_n_arb_v2(fd_arb, 0.5, sign*pow(2,i), pow(2,j), m, n);
        acb_abs(fd_real,fd_arb, 128); 
        if( arb_ge(fd_real, MaxMachineNumber) ){ overflow++;continue;}      
        if( arb_le(fd_real, MinMachineNumber) ){ underflow++;continue;}      
