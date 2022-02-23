@@ -426,8 +426,8 @@ __float128 recursion_half_frac_k_quad(__float128 k, __float128 x)
     else
 	  if(x<0.0q) 
 			recursion_half_frac_k_tmp =  sqrtq(1.0q - x)/2.0q + asinhq(sqrtq(-x))/(2.0q*sqrtq(-x));
-	  else if (x>0.0 && x<=1.0)
-			recursion_half_frac_k_tmp = sqrtq(1.0q - x)/2.0 + asinq(sqrtq(x))/(2.0q*sqrtq(x));
+	  else if (x>0.0q && x<=1.0q)
+			recursion_half_frac_k_tmp = sqrtq(1.0q - x)/2.0q + asinq(sqrtq(x))/(2.0q*sqrtq(x));
 	  else  recursion_half_frac_k_tmp = 1.0q;
 	  
 	return  recursion_half_frac_k_tmp;  
@@ -484,7 +484,7 @@ double sommerfeld_leading_term(double k, double x)
 	}
 }
 
-__float128 sommerfeld_leading_term_quad(__float128 k, double x)
+__float128 sommerfeld_leading_term_quad(__float128 k, __float128 x)
 {
 	
 	if( (k-floor(k)==0.5q) && (k<=64.0q) && (x<-0.5q) ) //half-frac k=-1/2,1/2,3/2,5/2,...
@@ -565,17 +565,26 @@ void sommerfeld_leading_term_derivatives_quad(__float128 k, __float128 z, __floa
     int i,j;
 
     result[0]=F;
-
+    
+  if(fabsq(z)<1.0e-7q)
+     {
+      for(i=1;i<DERIVATIVE_MATRIX_SIZE;i++)
+        result[i] = pochhammer_quad(-0.5q, i)*pochhammer_quad(1.0q + k, i)/pochhammer_quad(2.0q + k, i)
+            + ((-0.5q + i)*(1.0q + i + k)*pochhammer_quad(-0.5q, i)*pochhammer_quad(1.0q + k, i))/((2.0q + i + k)*pochhammer_quad(2.0q + k, i))*z;
+     }    
+  else
+   {    
     for(i=1;i<DERIVATIVE_MATRIX_SIZE;i++)
      {
       sum=0.0q;
       for(j=1;j<=i;j++)
        sum = sum + (((j%2)==0) ? -1.0q : 1.0q)*pochhammer_quad(-0.5q,i-j)*factorial_power_quad(k+i,j-1)/power_squaring_quad(z,j)/power_squaring_quad(z1,i-j);
+
       sum = sum*s*(1.0q+k);
       result[i] = sum + F*(((i%2)==0) ? 1.0q : -1.0q)*pochhammer_quad(1.0q+k,i)/power_squaring_quad(z,i);
      }
 
-
+   }
 
 }
 
