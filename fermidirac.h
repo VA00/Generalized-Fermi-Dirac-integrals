@@ -117,6 +117,7 @@ double U_half_frac(double, double);
 double BesselK_dbl_exp(const double, const double,  const double, const int);
 double BesselK(const double, const double);
 double sommerfeld_leading_term(double, double);
+__float128 sommerfeld_leading_term_quad(__float128, __float128);
 void   sommerfeld_leading_term_derivatives(double, double, double[DERIVATIVE_MATRIX_SIZE]);
 void   sommerfeld_leading_term_derivatives_quad(__float128, __float128, __float128[DERIVATIVE_MATRIX_SIZE]);
 void   sommerfeld_leading_term_derivatives_matrix(double, double, double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
@@ -125,6 +126,8 @@ __float128 sommerfeld_leading_term_derivatives_m_n_quad(const __float128, const 
 double sommerfeld_leading_term_int(double, double);
 double recursion_half_frac_k(double, double);
 double recursion_int_k(double, double);
+__float128 recursion_half_frac_k_quad(__float128, __float128);
+__float128 recursion_int_k_quad(__float128, __float128);
 double Ffermi_value         (double, double, double, double, int);
 double Ffermi_series_neg    (double, double, double, double, int);
 double Ffermi_sommerfeld    (double, double, double, double, int);
