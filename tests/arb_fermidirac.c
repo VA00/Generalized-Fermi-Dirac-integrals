@@ -22,6 +22,28 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 #include <fermidirac.h>
 #include <quadmath.h>
 
+/*
+Generalized Fermi–Dirac functions and derivatives: properties and evaluation
+Published: 1 June 2001
+|
+Version 1
+|
+DOI:
+10.17632/57tnc6sby7.1
+Contributors: Zhigang Gong, Ladislav Zejda, Werner Däppen, Josep M. Aparicio
+
+DOWNLOAD CODE FROM:
+
+https://elsevier.digitalcommonsdata.com/datasets/57tnc6sby7/1
+
+Compile instructions:
+
+*/
+double dfermi200_(int *, double *,double *,double *); //Gong GFDI
+
+int idx, gong_idx[4][4] = {{0, 2, 5, 9}, {1, 4, 8, -1}, {3, 7, -1, -1}, {6, -1, -1, -1}}; //Gong et. al, Table 1. p. 299, CPC 136 (2001)
+
+
 int eulerian_numbers[8][8] = {{1, 0, 0, 0, 0, 0, 0, 0}, {1, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 0, 0, 0, 
   0, 0, 0}, {1, 4, 1, 0, 0, 0, 0, 0}, {1, 11, 11, 1, 0, 0, 0, 0}, {1, 
   26, 66, 26, 1, 0, 0, 0}, {1, 57, 302, 302, 57, 1, 0, 0}, {1, 120, 
@@ -277,6 +299,7 @@ int main(int argc, char *argv[])
   arb_t fd_real, rel_err, MachineEpsilon, MaxMachineNumber, MinMachineNumber;
 
   int m,n, i,j, sign, counter=0, underflow=0, overflow=0, failed=0;
+  double k, eta, theta, GONG;
   //di_t interval; Require the most recent Arb, I'm unable to install it A.O. 
   
 
@@ -302,19 +325,25 @@ for(m=0;m<=3;m++)
   if(m+n>3) continue; 
   printf("Testing derivative %d%d\n\n",m,n);
   for(sign=-1;sign<=1;sign=sign+2)
-   for(i=-64;i<=64;i=i+4)
-    for(j=-64;j<=64;j=j+4)
+   for(i=-64;i<=64;i=i+8)
+    for(j=-64;j<=64;j=j+8)
      {
        counter++; 
+       
+       k=0.5;
+       eta = sign*pow(2,i);
+       theta = pow(2,j);
+
+
        if(!(counter%1024))   printf("Total tested = %d, overflow=%d, underflow=%d, failed=%d\n",counter, overflow, underflow, failed); 
-       Ffermi_derivatives_m_n_arb(fd_arb, 0.5, sign*pow(2,i), pow(2,j), m, n);
+       Ffermi_derivatives_m_n_arb(fd_arb, k, eta, theta, m, n);
        acb_abs(fd_real,fd_arb, 128); 
        if( arb_ge(fd_real, MaxMachineNumber) ){ overflow++;continue;}      
        if( arb_le(fd_real, MinMachineNumber) ){ underflow++;continue;}      
 
        fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, sign*powq(2,i), powq(2,j), m, n);
-       //fd_double = Ffermi_derivatives_m_n_internal_arb(0.5, sign*pow(2,i), pow(2,j), 0, 0);   
-       //fd_quad = Ffermi_derivatives_m_n(0.5, sign*pow(2,i), pow(2,j), 0, 0);
+       //fd_double = Ffermi_derivatives_m_n_internal_arb(0.5, sign*pow(2,i), pow(2,j), m, n);   
+       //fd_quad = Ffermi_derivatives_m_n(k, eta, theta, m, n);
 
        //printf("%e\n", fd_quad/fd_double-1.0);
      
@@ -331,13 +360,28 @@ for(m=0;m<=3;m++)
        //acb_print(fd_arb);printf("\n");
        //acb_printd(fd_arb, 128);printf("\n");
        acb_printn(fd_arb, 128, 0);printf("\n");
-       printf("libfermidirac=%.18e",  fd_quad);     
-       printf("\n");
+       printf("libfermidirac=%.18e\n",  fd_quad);     
+      
+       idx = gong_idx[m][n];
+       GONG = dfermi200_(&idx,&k, &eta, &theta);
+       printf("GONG         =%.18e\n",GONG);
+
+
+
      
        printf("%d %d\t%d\t",sign,i,j); 
        printf("k=%.1lf eta=%e theta=%e m=%d n=%d\n", 0.5, sign*pow(2,i), pow(2,j), m, n);
        printf("Relative error:\t");arb_printn(rel_err, 128, 0);
-       //arb_printn(MachineEpsilon, 128, 0);
+
+       acb_set_d(fd, GONG);
+     
+       acb_div(fd, fd, fd_arb, 128);
+       acb_add_si(fd, fd, -1, 128);
+       acb_abs(rel_err, fd, 128);
+       printf("\nRelative error:\t");arb_printn(rel_err, 128, 0);
+
+       printf("\n0.5*eta*theta=%e\n", eta*theta*0.5);
+      
        printf("\n------------------------------------------------------------------------------\n\n");
        }
 
