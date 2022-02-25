@@ -563,14 +563,49 @@ void sommerfeld_leading_term_derivatives_quad(__float128 k, __float128 z, __floa
     __float128 s = sqrtq(z1);
     __float128 sum, F = sommerfeld_leading_term_quad(k,z); //Hypergeometric2F1[-0.5,1+k,2+k,z]
     int i,j;
+    __float128 c[8]={
+         1.0000000000q, \
+         0.5000000000q, \
+         0.3750000000q, \
+         0.3125000000q, \
+         0.2734375000q, \
+         0.2460937500q, \
+         0.2255859375q, \
+         0.20947265625q};
 
     result[0]=F;
-    
-  if(fabsq(z)<1.0e-7q)
+
+  //One could use optimized formula for derivatives up to order 3, to be tested
+	
+	//The first d/dz derivative of the 2F1(-0.5, 1+k,2+k,z) hypergeometric function
+
+/*
+    sum=0.0q;
+    for(i=0;i<8;i++)
+      sum = sum + c[i]/(2.0q+k+i)*power_squaring_quad(z,i);
+    //result[1] = (fabsq(z)>1.0e-8q) ? (1.0q+k)/z*(s - result[0]) : (1.0q+k)*(-0.5q/(2.0q + k) - z/(4.0q*(3.0q + k)) - (3.0q*z*z)/(16.0q*(4.0q + k)));
+    result[1] = (fabsq(z)>1.0e-7q) ? (1.0q+k)/z*(s - result[0]) : -(1.0q+k)*0.5q*sum;
+    //The second d2/dz2 derivative
+	result[2] = (s + k*s + result[1]*(4.0q + 2.0q*k)*z1)/(-2.0q*z*z1);
+    ////The third d3/dz3 derivative
+	result[3] = (-s - k*s + result[2]*(-12.0q + (24.0q - 12.0q*z)*z + k*(-4.0q + (8.0q - 4.0q*z)*z)))/(z*(4.0q + z*(-8.0q + 4.0q*z)));
+	
+*/
+
+ 
+  if(fabsq(z)<1.0e-4q) //Some individual derivative tweaking might improve
      {
       for(i=1;i<DERIVATIVE_MATRIX_SIZE;i++)
-        result[i] = pochhammer_quad(-0.5q, i)*pochhammer_quad(1.0q + k, i)/pochhammer_quad(2.0q + k, i)
-            + ((-0.5q + i)*(1.0q + i + k)*pochhammer_quad(-0.5q, i)*pochhammer_quad(1.0q + k, i))/((2.0q + i + k)*pochhammer_quad(2.0q + k, i))*z;
+       {
+        sum=0.0q;
+        //for(j=0;j<7;j++) sum = sum + pochhammer_quad(-0.5q+i,j)*pochhammer_quad(1.0q+k+i,j)/pochhammer_quad(2.0q+k+i,j)*power_squaring_quad(z,j)/factorial_quad[j];
+        /*
+        Code above is replaced by ZERO-th hypergeometric reflection ? 
+        hyp2f1_series_quad(-0.5q+i,1+k+i ,2.0q+2+i, z, __float128 precision, int SERIES_TERMS_MAX)
+        */
+        sum = hyp2f1_series_quad(-0.5q+i,1.0q+k+i ,2.0q+k+i, z, 1.0e-32q, 8);
+        result[i] = sum*pochhammer_quad(-0.5q,i)*pochhammer_quad(1.0q+k,i)/pochhammer_quad(2.0q+k,i);
+       }
      }    
   else
    {    
