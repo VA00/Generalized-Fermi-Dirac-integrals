@@ -134,6 +134,7 @@ double Ffermi_sommerfeld    (double, double, double, double, int);
 void sommerfeld_derivatives(const double, const double, const double, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double sommerfeld_derivatives_m_n(const double, const double, const double, const int, const int);
 __float128 sommerfeld_derivatives_m_n_quad(const __float128, const __float128, const __float128, const int, const int);
+__float128 Ffermi_sommerfeld_derivatives_m_n_quad(const __float128, const __float128, const __float128, const int, const int, const __float128 precision, const int SERIES_TERMS_MAX);
 void   Ffermi_sommerfeld_derivatives(const double, const double, const double, const double, const int, double[10]);
 void   Ffermi_sommerfeld_derivatives_matrix(double, double, double, double, int, double[DERIVATIVE_MATRIX_SIZE][DERIVATIVE_MATRIX_SIZE]);
 double Ffermi_sommerfeld_derivatives_m_n(const double, const double, const double, const int, const int, const double, const int);
