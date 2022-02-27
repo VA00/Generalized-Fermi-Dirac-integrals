@@ -1073,7 +1073,7 @@ __float128 sommerfeld_derivatives_m_n_quad(const __float128 k, const __float128 
        sign = ((n%2)==0) ? -1.0q : 1.0q; // (-1)^(n+1);
        eta_k = powq(eta,k - m + n);
        for(i=0;i<=m;i++)
-         sum = sum + binom_quad(m,i)*fac2_quad(2*n + 2*m - 3 - 2*i)*powq(2.0, i - m - 2*n)*pochhammer_quad(k + 1.5 - m, i)*powq(z1,0.5 + i - m - n);
+         sum = sum + binom_quad(m,i)*fac2_quad(2*n + 2*m - 3 - 2*i)*powq(2.0q, i - m - 2*n)*pochhammer_quad(k + 1.5q - m, i)*powq(z1,0.5q + i - m - n);
        
        return sign*eta_k*sum;
 
