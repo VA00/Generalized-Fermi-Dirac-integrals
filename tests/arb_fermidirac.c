@@ -281,7 +281,7 @@ double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, con
   arb_t res;
   arb_init(res);
   
-  acb_abs(res, s, 128);
+  acb_get_real(res, s);
   arb_get_lbound_arf(t, res, 64);
   result = arf_get_d(t, ARF_RND_NEAR);
   arf_clear(t);
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
   arb_t fd_real, rel_err, MachineEpsilon, MaxMachineNumber, MinMachineNumber;
 
   int m,n, i,j, sign, counter=0, underflow=0, overflow=0, failed=0;
-  double k, eta, theta, GONG;
+  double k, eta, theta, GONG, Arb;
   //di_t interval; Require the most recent Arb, I'm unable to install it A.O. 
   
 
@@ -319,14 +319,16 @@ int main(int argc, char *argv[])
   arb_one(MinMachineNumber);
   arb_mul_2exp_si(MinMachineNumber, MinMachineNumber, -1022); 
 
+#if 1
+
 for(m=0;m<=3;m++)
  for(n=0;n<=3;n++)
   {
   if(m+n>3) continue; 
   printf("Testing derivative %d%d\n\n",m,n);
   for(sign=-1;sign<=1;sign=sign+2)
-   for(i=-64;i<=64;i=i+8)
-    for(j=-64;j<=64;j=j+8)
+   for(i=-128;i<=128;i=i+16)
+    for(j=-128;j<=128;j=j+16)
      {
        counter++; 
        
@@ -337,11 +339,13 @@ for(m=0;m<=3;m++)
 
        if(!(counter%1024))   printf("Total tested = %d, overflow=%d, underflow=%d, failed=%d\n",counter, overflow, underflow, failed); 
        Ffermi_derivatives_m_n_arb(fd_arb, k, eta, theta, m, n);
-       acb_abs(fd_real,fd_arb, 128); 
+       acb_get_real(fd_real,fd_arb); 
        if( arb_ge(fd_real, MaxMachineNumber) ){ overflow++;continue;}      
        if( arb_le(fd_real, MinMachineNumber) ){ underflow++;continue;}      
 
-       fd_quad = (double) Ffermi_derivatives_m_n_quad(0.5q, sign*powq(2,i), powq(2,j), m, n);
+       fd_quad = (double) Ffermi_derivatives_m_n_quad((__float128) k, (__float128) eta, (__float128) theta, m, n);
+       //fd_quad = (double) Ffermi_sommerfeld_derivatives_m_n_quad(k, eta, theta, m, n,powq(2.0q,-64.0q),11);
+       //fd_quad = (double) Ffermi_dblexp_derivatives_m_n_quad(k,eta,theta, m, n, (__float128) 128*DBL_EPSILON, MAX_REFINE);
        //fd_double = Ffermi_derivatives_m_n_internal_arb(0.5, sign*pow(2,i), pow(2,j), m, n);   
        //fd_quad = Ffermi_derivatives_m_n(k, eta, theta, m, n);
 
@@ -370,7 +374,7 @@ for(m=0;m<=3;m++)
 
      
        printf("%d %d\t%d\t",sign,i,j); 
-       printf("k=%.1lf eta=%e theta=%e m=%d n=%d\n", 0.5, sign*pow(2,i), pow(2,j), m, n);
+       printf("k=%.1lf eta=%e theta=%e m=%d n=%d\n", k, eta, theta, m, n);
        printf("Relative error:\t");arb_printn(rel_err, 128, 0);
 
        acb_set_d(fd, GONG);
@@ -388,6 +392,35 @@ for(m=0;m<=3;m++)
 
      }
   }
+
+
+#endif
+
+#if 0
+
+  m=3;n=0;
+  printf("Testing derivative %d%d\n\n",m,n);
+  sign=1;
+  k=0.5;
+  theta = pow(2,18);
+
+for(eta=32.0;eta<=128.0;eta=eta+0.125)
+ {
+
+  Arb = Ffermi_derivatives_m_n_internal_arb(k, eta, theta, m, n);
+  
+  fd_quad = (double) Ffermi_dblexp_derivatives_m_n_quad(k,eta,theta, m, n, (__float128) 8*DBL_EPSILON, MAX_REFINE);
+  //fd_double = (double) Ffermi_sommerfeld_derivatives_m_n_quad(k,eta,theta, m, n, (__float128) 8*DBL_EPSILON, MAX_REFINE);
+  fd_double = (double) Ffermi_derivatives_m_n_quad(k,eta,theta, m, n);
+   
+  idx = gong_idx[m][n];
+  GONG = dfermi200_(&idx,&k, &eta, &theta);
+
+  printf("%lf\t%.18e\t%.18e\t%.18e\t%.18e\n",eta,Arb,fd_quad,GONG,fd_double);
+ }
+
+#endif
+
 
 
   acb_clear(fd_arb);
