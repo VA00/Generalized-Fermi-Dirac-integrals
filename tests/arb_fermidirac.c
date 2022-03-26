@@ -10,19 +10,14 @@ sudo apt install libflint-arb2
 sudo apt install libflint-dev
 
 
-Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
+Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm -lfermidirac -lquadmath dfermi200.o fedi_cpc.o -lgfortran
+
 
 */
 
-#include <string.h>
-#include <acb_calc.h>
-#include <arb.h>
-#include <acb_hypgeom.h>
-//#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
-#include <fermidirac.h>
-#include <quadmath.h>
 
 /*
+
 Generalized Fermi–Dirac functions and derivatives: properties and evaluation
 Published: 1 June 2001
 |
@@ -38,7 +33,20 @@ https://elsevier.digitalcommonsdata.com/datasets/57tnc6sby7/1
 
 Compile instructions:
 
+gfortran -c fedi_cpc.for
+gfortran -c dfermi200.for
+
+Copy files  fedi_cpc.o, dfermi200.o to test/ subdir
+
 */
+#include <string.h>
+#include <acb_calc.h>
+#include <arb.h>
+#include <acb_hypgeom.h>
+//#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
+#include <fermidirac.h>
+#include <quadmath.h>
+
 double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 
 int idx, gong_idx[4][4] = {{0, 2, 5, 9}, {1, 4, 8, -1}, {3, 7, -1, -1}, {6, -1, -1, -1}}; //Gong et. al, Table 1. p. 299, CPC 136 (2001)
