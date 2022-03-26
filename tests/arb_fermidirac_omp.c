@@ -80,7 +80,6 @@ for(m=0;m<=3;m++)
      {
        counter++; 
 
-       k=0.0;
        eta = sign*pow(2,i);
        theta = pow(2,j);
 
