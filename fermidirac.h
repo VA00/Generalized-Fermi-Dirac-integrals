@@ -1,3 +1,8 @@
+#include <quadmath.h>
+#include <acb_calc.h>
+#include <arb.h>
+#include <acb_hypgeom.h>
+
 #define DEBUG 0
 /* MAX_REFINE limit recursion depth for FFermi.
 Note, that convergence might be slow, and
@@ -159,4 +164,9 @@ double integrandF_complete(const double, const double, const double);
 double integrandF(const double, const double, const double, const double);
 double integrandG(const double, const double, const double, const double);
 
+//Arb ball-arithmetic implementation
+int f_generalized_relativistic_fermi_dirac_integrand    (acb_ptr, const acb_t, void *, slong, slong);
+int f_generalized_relativistic_fermi_dirac_integrand_m_n(acb_ptr, const acb_t, void *, slong, slong);
+void   Ffermi_derivatives_m_n_arb(acb_t, const double, const double, const double, const int, const int);
+double Ffermi_derivatives_m_n_internal_arb(const double, const double, const double, const int, const int);
 

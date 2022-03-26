@@ -32,18 +32,6 @@ __float128 binom_quad(__float128 n, int k)
 	
 }
 
-double eulerian(int i, int j)
-{  
-  int l;
-  double sum = 0.0;
-  
-  //Sum[(-1)^l Binomial[i + 1, l] (j - l + 1)^i, {l, 0, j}]
-  for(l=0;l<=j;l++)
-   sum =sum + ((l%2) ? -1.0 : 1.0)*binom(i+1.0,l)*power_squaring(j-l+1.0,i);
-  
-  return sum;
-  
-}
 
 /* Dirichlet eta accelerated series */
 double dirichlet_eta(double k, double precision, int SERIES_TERMS_MAX)
