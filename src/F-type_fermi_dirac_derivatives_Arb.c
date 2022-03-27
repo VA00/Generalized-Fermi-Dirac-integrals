@@ -259,10 +259,10 @@ double Ffermi_derivatives_m_n_internal_arb(const double k, const double eta, con
   arf_init(t);
   arb_t res;
   arb_init(res);
-  
+ 
   acb_get_real(res, s);
-  arb_get_lbound_arf(t, res, 64);
-  result = arf_get_d(t, ARF_RND_NEAR);
+  result = arf_get_d( arb_midref(res) , ARF_RND_NEAR);
+
   arf_clear(t);
   arb_clear(res);
   acb_clear(s);
