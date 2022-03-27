@@ -46,6 +46,7 @@ Copy files  fedi_cpc.o, dfermi200.o to test/ subdir
 //#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
 #include <fermidirac.h>
 #include <quadmath.h>
+#include <omp.h>
 
 double dfermi200_(int *, double *,double *,double *); //Gong GFDI
 
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
   acb_t fd_arb, fd;
   arb_t fd_real, rel_err, MachineEpsilon, MaxMachineNumber, MinMachineNumber;
 
-  int m,n, i,j, sign, counter=0, underflow=0, overflow=0, failed=0;
+  int m,n, i,j, sign, counter=0, underflow=0, overflow=0, failed=0, lg2_max;
   double k, eta, theta, GONG, Arb;
   //di_t interval; Require the most recent Arb, I'm unable to install it A.O. 
   
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
   arb_init(rel_err);
   arb_init(MachineEpsilon);
   arb_one(MachineEpsilon);
-  arb_mul_2exp_si(MachineEpsilon, MachineEpsilon, -50); 
+  arb_mul_2exp_si(MachineEpsilon, MachineEpsilon, -52); 
   arb_init(MaxMachineNumber);
   arb_one(MaxMachineNumber);
   arb_mul_2exp_si(MaxMachineNumber, MaxMachineNumber, 1024); 
@@ -80,20 +81,24 @@ int main(int argc, char *argv[])
   arb_one(MinMachineNumber);
   arb_mul_2exp_si(MinMachineNumber, MinMachineNumber, -1022); 
 
+  sscanf(argv[1],"%lf",&k);
+  sscanf(argv[2],"%d",&lg2_max);
+
 #if 1
+
 
 for(m=0;m<=3;m++)
  for(n=0;n<=3;n++)
   {
   if(m+n>3) continue; 
   printf("Testing derivative %d%d\n\n",m,n);
+//#pragma omp parallel for collapse(3) private(idx, eta,theta, fd, fd_real, fd_arb, fd_quad, rel_err, GONG, sign,i,j) shared(lg2_max,m,n) reduction(+ :counter, overflow, underflow, failed)	  
   for(sign=-1;sign<=1;sign=sign+2)
-   for(i=-11;i<=11;i=i+1)
-    for(j=-11;j<=11;j=j+1)
+   for(i=-lg2_max;i<=lg2_max;i=i+1)
+    for(j=-lg2_max;j<=lg2_max;j=j+1)
      {
        counter++; 
-       
-       k=4.0;
+
        eta = sign*pow(2,i);
        theta = pow(2,j);
 
@@ -117,6 +122,7 @@ for(m=0;m<=3;m++)
        acb_div(fd, fd, fd_arb, 128);
        acb_add_si(fd, fd, -1, 128);
        acb_abs(rel_err, fd, 128);
+
 
        if( arb_ge(rel_err, MachineEpsilon) || (!acb_is_finite(fd_arb)) )
        {

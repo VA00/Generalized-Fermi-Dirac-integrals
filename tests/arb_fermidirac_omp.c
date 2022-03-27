@@ -88,7 +88,7 @@ for(m=0;m<=3;m++)
        if(fd_quad!=fd_double)
         {
          failed++;
-         printf("%d %d k=%lf eta=%e theta=%e, %.17e\t%.17e\t%d\n",m,n,k,eta,theta,fd_double, fd_quad, ULP_distance(fd_double,fd_quad,128));
+         printf("%d %d k=%lf eta=%e theta=%e, %.17e\t%.17e\tULP=%d\n",m,n,k,eta,theta,fd_double, fd_quad, ULP_distance(fd_double,fd_quad,128));
         }
      }
   }
