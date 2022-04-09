@@ -228,7 +228,14 @@ void Ffermi_derivatives_m_n_arb(acb_t s, const double k, const double eta, const
   mag_init(tol);
   mag_set_ui_2exp_si(tol, 1, -prec); // tol = 1*2^-prec
 
-  acb_zero(a);
+
+  if( ( (k-floor(k)==0.5) || (k-floor(k)==0.0) ) && (k>=0.0) )  //half-frac k=1/2,3/2,5/2,... OR integer k=0,1,2,3,4,5,...
+    acb_zero(a); // We are able start integration at ZERO
+  else
+    acb_set_d(a,pow(2.0,-256)); // Unable to integrate near (complex) ZERO, branches?
+// TODO: Replace ABOVE with something more serious
+
+
   //cutoff = prec + FLINT_BIT_COUNT(prec)+fmax(eta,0.0); // eta added !!!!!
   acb_set_d(b,  fmax(eta,0.0) );
   //acb_set_d(b,  cutoff);
