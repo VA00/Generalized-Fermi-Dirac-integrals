@@ -39,7 +39,7 @@ AC_CHECK_FUNCS([sqrt nan tgamma])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h quadmath.h])
-AC_CHECK_HEADER([acb_calc.h], [], [AC_MSG_ERROR("Arb integrator missing! Install FLINT and Arb:\nsudo apt install libflint-arb-dev\nsudo apt install libflint-arb2\nsudo apt install libflint-dev")], [])
+AC_CHECK_HEADER([acb_calc.h], [], [AC_MSG_ERROR("Arb integrator missing! Install FLINT and Arb: sudo apt install libflint-arb-dev; sudo apt install libflint-dev")], [])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
