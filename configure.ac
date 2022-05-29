@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.65)
-AC_INIT([libfermidirac],[0.26],[andrzej.odrzywolek@uj.edu.pl])
+AC_INIT([libfermidirac],[0.27],[andrzej.odrzywolek@uj.edu.pl])
 AC_CONFIG_SRCDIR([fermidirac.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror gnu])
