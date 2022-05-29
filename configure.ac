@@ -39,6 +39,7 @@ AC_CHECK_FUNCS([sqrt nan tgamma])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h quadmath.h])
+AC_CHECK_HEADER([acb_calc.h], [], [echo "Arb integrator missing!"], [])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
