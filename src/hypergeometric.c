@@ -121,6 +121,22 @@ __float128 power_squaring_quad(__float128 x, int n)
   return p;
 }
 
+
+// a[i_, k_, theta_]=SeriesCoefficient[   Pi s/Sin[Pi s] Hypergeometric1F1[-1/2, -k - 1/2, 2 s/theta], {s,0,i}]
+double a(int i, double k, double theta)
+{
+  double result=1.0;
+  
+  switch(i)
+   {
+    case 0: return 1.0; break;
+    case 1: return 2.0/((1.0 + 2.0*k)*theta); break;
+    case 2: return M_PI*(M_PI/6.0 - 2.0/((-1.0 + 2.0*k)*(1.0 + 2.0*k)*M_PI*theta*theta)); break;
+    default: return sqrt(-1.0);
+   }
+}
+
+
 /* Std. hypergeometric series, converging rapidly for |z|<0.5, and slowly for |z|<0.8 */
 double hyp2f1_series(double a, double b, double c, double z, double precision, int SERIES_TERMS_MAX)
 {
@@ -829,7 +845,7 @@ double U(double k, double x)
 	  return U_half_frac(k,x); //half-fractional case
 	  //return 0.0; //half-fractional case
     else 
-	  return hypU(1.0+k, 2.5+k, x, eps, 64);
+	  return hypU(1.0+k, 2.5+k, x, eps, 64); //SERIES_TERMS_MAX set to 64
 	
 }
 
