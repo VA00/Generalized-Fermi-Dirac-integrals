@@ -1302,7 +1302,7 @@ double Ffermi_sommerfeld_derivatives_m_n(const double k, const double eta, const
 		sum_new = sum_old + 2.0*etaTBL_odd[i]*derivative;
 		i++;
 	}
-    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<=SERIES_TERMS_MAX );
 
 
 
@@ -1341,7 +1341,7 @@ __float128 Ffermi_sommerfeld_derivatives_m_n_quad(const __float128 k, const __fl
 		sum_new = sum_old + 2.0q*etaTBL_odd_quad[i]*derivative;
 		i++;
 	}
-    while ( ( (precision>0.0q) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
+    while ( ( (precision>0.0q) ? fabsq(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<SERIES_TERMS_MAX );
 
 
 
@@ -1350,6 +1350,30 @@ __float128 Ffermi_sommerfeld_derivatives_m_n_quad(const __float128 k, const __fl
 
 }
 
+
+double Ffermi_gil_derivatives_m_n(const double k, const double eta, const double theta, const int m, const int n, const double precision, const int SERIES_TERMS_MAX)
+{
+  double first_term=0.0, sum_old, sum_new;
+  int i;
+
+  first_term = pow(eta,-m)/tgamma(k+2.5-m); // a(0,k,theta)=1
+
+  if(SERIES_TERMS_MAX<1) return first_term*pow(eta,k+1.5)*sqrt(0.5*theta)*tgamma(k + 1.5); 
+
+    i=1;
+    sum_new = first_term; 
+	do
+	{
+		sum_old = sum_new;
+        sum_new = sum_new + a(i,k,theta)/tgamma(k+2.5-i-m)*pow(eta,-i-m);
+		i++;
+	}
+    while ( ( (precision>0.0) ? fabs(sum_old-sum_new)>=precision*sum_new : sum_old!=sum_new )  && i<=SERIES_TERMS_MAX );
+  
+
+  return sum_new*pow(eta,k+1.5)*sqrt(0.5*theta)*tgamma(k + 1.5);
+
+}
 
 void Ffermi_derivatives(const double k, const double eta, const double theta, double result[10])
 {
