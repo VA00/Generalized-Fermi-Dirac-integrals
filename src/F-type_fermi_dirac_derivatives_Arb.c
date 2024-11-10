@@ -5,8 +5,7 @@ A. Odrzywołek, 2022-02-16, andrzej.odrzywolek@uj.edu.pl
 
 Install Arb https://arblib.org/
 
-sudo apt install libflint-arb-dev
-sudo apt install libflint-arb2
+sudo apt install libflint
 sudo apt install libflint-dev
 
 
@@ -15,8 +14,11 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 */
 
 #include <string.h>
-#include <acb_calc.h>
+#include <math.h>
 #include <arb.h>
+#include <arb_calc.h>
+#include <acb.h>
+#include <acb_calc.h>
 #include <acb_hypgeom.h>
 //#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
 #include <fermidirac.h>
