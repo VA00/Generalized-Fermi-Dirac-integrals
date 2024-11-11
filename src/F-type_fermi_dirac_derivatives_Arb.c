@@ -15,11 +15,11 @@ Compile with: gcc arb_fermidirac.c -o arb_fd -lflint -lflint-arb -lm
 
 #include <string.h>
 #include <math.h>
-#include <arb.h>
-#include <arb_calc.h>
-#include <acb.h>
-#include <acb_calc.h>
-#include <acb_hypgeom.h>
+#include <flint/arb.h>
+#include <flint/arb_calc.h>
+#include <flint/acb.h>
+#include <flint/acb_calc.h>
+#include <flint/acb_hypgeom.h>
 //#include "double_interval.h" // Require the most recent Arb, I'm unable to install it A.O. 
 #include <fermidirac.h>
 #include <quadmath.h>

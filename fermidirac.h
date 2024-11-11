@@ -1,7 +1,7 @@
 #include <quadmath.h>
-#include <acb_calc.h>
-#include <arb.h>
-#include <acb_hypgeom.h>
+#include <flint/acb_calc.h>
+#include <flint/arb.h>
+#include <flint/acb_hypgeom.h>
 
 #define DEBUG 0
 /* MAX_REFINE limit recursion depth for FFermi.
