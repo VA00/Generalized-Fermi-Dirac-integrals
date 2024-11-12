@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.65)
-AC_INIT([libfermidirac],[0.27],[andrzej.odrzywolek@uj.edu.pl])
+AC_INIT([libfermidirac],[0.28],[andrzej.odrzywolek@uj.edu.pl],[],[2024-11-12])
 AC_CONFIG_SRCDIR([fermidirac.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror gnu])
@@ -19,7 +19,6 @@ examples/Makefile
 AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PROG_AR
-LT_INIT
 LT_INIT
 
 # Check for presence of pdfLaTeX
@@ -39,7 +38,7 @@ AC_CHECK_FUNCS([sqrt nan tgamma])
 # Checks for header files.
 
 AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h quadmath.h])
-AC_CHECK_HEADER([flint/acb_calc.h], [], [AC_MSG_ERROR("Arb integrator missing! Install FLINT and Arb: sudo apt install libflint-dev")], [])
+AC_CHECK_HEADER([flint/acb_calc.h], [], [AC_MSG_ERROR("Arb integrator missing! Install FLINT/Arb: sudo apt install libflint-dev")], [])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
