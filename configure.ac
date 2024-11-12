@@ -37,7 +37,7 @@ AC_CHECK_LIB([quadmath], [sqrtq, tgammaq])
 AC_CHECK_FUNCS([sqrt nan tgamma])
 
 # Checks for header files.
-AC_HEADER_STDC
+
 AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h math.h float.h quadmath.h])
 AC_CHECK_HEADER([flint/acb_calc.h], [], [AC_MSG_ERROR("Arb integrator missing! Install FLINT and Arb: sudo apt install libflint-dev")], [])
 
